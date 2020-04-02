@@ -53,11 +53,8 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
 
                     string monthAsString = _calendarDate.ToString("MMMM");
                     string yearAsString = _calendarDate.Year.ToString(CultureInfo.InvariantCulture);
-                    int dateHeaderSize =
-                        (int) g.MeasureString(monthAsString + " " + yearAsString, _dateHeaderFont).Height;
-
-                    int daySpace = (int) CalculateDayFontSizes(g).Select(f => f.Height).Max();
-
+                    int dateHeaderSize = (int) g.MeasureString(monthAsString + " " + yearAsString, _dateHeaderFont).Height;
+                    int daySpace = MaxDaySize(g).Height;
                     int effectiveWidth = ClientSize.Width - MarginSize;
                     int effectiveHeight = ClientSize.Height - (daySpace + dateHeaderSize + MarginSize);
                     var alignInfo = CalculateNumberOfWeeks(_calendarDate.Year, _calendarDate.Month);
@@ -66,6 +63,7 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
 
                     int xStart = MarginSize;
                     int yStart = MarginSize + dateHeaderSize + daySpace;
+                    
 
                     // Draw grid and dates
                     var gray = new SolidBrush(Color.FromArgb(170, 170, 170));
@@ -75,12 +73,15 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                     foreach (var day in alignInfo.Days)
                     {
                         var brush = day.IsRogue ? gray : black;
-                        g.DrawString(day.ToString(), _dayOfWeekFont, brush, xStart, yStart);
-                        xStart += cellWidth;
+                        g.DrawString(day.ToString(), _dayOfWeekFont, brush, xStart + (cellWidth - g.MeasureString(day.ToString(), _dayOfWeekFont).Width) / 2, yStart);
                         if (++dayCount % NumberOfDaysAWeek == 0)
                         {
                             xStart = MarginSize;
                             yStart += cellHeight;
+                        }
+                        else
+                        {
+                            xStart += cellWidth;
                         }
                     }
                 }
@@ -144,9 +145,9 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             return days;
         }
 
-        private IEnumerable<SizeF> CalculateDayFontSizes(Graphics g)
+        private SizeResult MaxDaySize(Graphics g)
         {
-            return new[]
+            var sizes = new[]
             {
                 g.MeasureString("Mon", _dayOfWeekFont),
                 g.MeasureString("Tue", _dayOfWeekFont),
@@ -156,8 +157,46 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                 g.MeasureString("Sat", _dayOfWeekFont),
                 g.MeasureString("Sun", _dayOfWeekFont),
             };
+
+            return new SizeResult
+            {
+                Width = (int) sizes.Select(f => f.Width).Max(),
+                Height = (int) sizes.Select(f => f.Height).Max()
+            };
         }
 
+        private SizeResult MaxDateSize(Graphics g)
+        {
+            var maxWidth = g.MeasureString("0", _dayOfWeekFont).Width;
+            var maxHeight = g.MeasureString("0", _dayOfWeekFont).Height;
+            for (var i = 1; i <= 31; i++)
+            {
+                var text = i.ToString(CultureInfo.InvariantCulture);
+                var width = g.MeasureString(text, _dayOfWeekFont).Width;
+                var height = g.MeasureString(text, _dayOfWeekFont).Height;
+                if (width > maxWidth)
+                {
+                    maxWidth = width;
+                }
+                if (height > maxHeight)
+                {
+                    maxHeight = height;
+                }
+            }
+
+            return new SizeResult
+            {
+                Width = (int) maxWidth,
+                Height = (int) maxHeight
+            };
+        }
+
+        private struct SizeResult
+        {
+            public int Height;
+            public int Width;
+        }
+        
         internal struct MonthInfo
         {
             internal MonthInfo(int daysInMonth, int start, int end, int rogueBefore, int rogueAfter, int numberOfWeeks, IEnumerable<Day> days)
