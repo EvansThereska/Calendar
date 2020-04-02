@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29905.134
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PraxGroup.Sorax.CapacityCalendar.Main", "PraxGroup.Sorax.CapacityCalendar.Main\PraxGroup.Sorax.CapacityCalendar.Main.csproj", "{CB1A7DCE-DB43-4E71-A3BA-A95F0986CDB0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PraxGroup.Sorax.CapacityCalendar.Demo", "PraxGroup.Sorax.CapacityCalendar.Demo\PraxGroup.Sorax.CapacityCalendar.Demo.csproj", "{0BFE354D-6566-47C9-BA99-294955775BAB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PraxGroup.Sorax.CapacityCalendar.Tests", "PraxGroup.Sorax.CapacityCalendar.Tests\PraxGroup.Sorax.CapacityCalendar.Tests.csproj", "{61544B81-9AA7-4B2D-AC92-4225E89B78C2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CB1A7DCE-DB43-4E71-A3BA-A95F0986CDB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CB1A7DCE-DB43-4E71-A3BA-A95F0986CDB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CB1A7DCE-DB43-4E71-A3BA-A95F0986CDB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CB1A7DCE-DB43-4E71-A3BA-A95F0986CDB0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0BFE354D-6566-47C9-BA99-294955775BAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BFE354D-6566-47C9-BA99-294955775BAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BFE354D-6566-47C9-BA99-294955775BAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BFE354D-6566-47C9-BA99-294955775BAB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{61544B81-9AA7-4B2D-AC92-4225E89B78C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61544B81-9AA7-4B2D-AC92-4225E89B78C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61544B81-9AA7-4B2D-AC92-4225E89B78C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61544B81-9AA7-4B2D-AC92-4225E89B78C2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AF9A3413-B0FD-4E2E-AA0B-9A8D35FFD2FA}
+	EndGlobalSection
+EndGlobal
