@@ -67,34 +67,23 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                     int xStart = MarginSize;
                     int yStart = MarginSize + dateHeaderSize + daySpace;
 
-                    // Let's draw -- this is a bit shitty
-                    var counter = 1;
-                    var preDays = alignInfo.RogueBefore;
-                    for (var y = 0; y < alignInfo.NumberOfWeeks; y++)
+                    // Draw grid and dates
+                    var gray = new SolidBrush(Color.FromArgb(170, 170, 170));
+                    var black = Brushes.Black;
+
+                    var dayCount = 0;
+                    foreach (var day in alignInfo.Days)
                     {
-                        for (var x = 0; x < NumberOfDaysAWeek; x++)
+                        var brush = day.IsRogue ? gray : black;
+                        g.DrawString(day.ToString(), _dayOfWeekFont, brush, xStart, yStart);
+                        xStart += cellWidth;
+                        if (++dayCount % NumberOfDaysAWeek == 0)
                         {
-                            if (preDays > 0)
-                            {
-                                var dayNumber = DateTime.DaysInMonth(_calendarDate.AddMonths(-1).Year, _calendarDate.AddMonths(-1).Month) - preDays + 1;
-                                g.DrawString(dayNumber.ToString(CultureInfo.InvariantCulture), _dayOfWeekFont, new SolidBrush(Color.FromArgb(170, 170, 170)), xStart, yStart);
-                                preDays--;
-                            }
-                            else if (counter <= alignInfo.DaysInMonth)
-                            {
-                                g.DrawString(counter.ToString(CultureInfo.InvariantCulture), _dayOfWeekFont,
-                                    Brushes.Black, xStart, yStart);
-                                counter++;
-                            }
-
-                            xStart += cellWidth;
+                            xStart = MarginSize;
+                            yStart += cellHeight;
                         }
-
-                        xStart = MarginSize;
-                        yStart += cellHeight;
                     }
                 }
-
                 e.Graphics.DrawImage(bitmap, 0, 0, ClientSize.Width, ClientSize.Height);
             }
         }
@@ -119,7 +108,7 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
 
             Debug.Assert(paddedDays % NumberOfDaysAWeek == 0);
 
-            var days = PopulateDays(leftPadding, rightPadding, daysInMonth)
+            var days = PopulateDays(leftPadding, rightPadding, daysInMonth);
 
             var numberOfWeeks = paddedDays / NumberOfDaysAWeek;
 
@@ -171,8 +160,9 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
 
         internal struct MonthInfo
         {
-            internal MonthInfo(int daysInMonth, int start, int end, int rogueBefore, int rogueAfter, int numberOfWeeks, IEnumerable<Day> ) 
+            internal MonthInfo(int daysInMonth, int start, int end, int rogueBefore, int rogueAfter, int numberOfWeeks, IEnumerable<Day> days)
             {
+                Days = days;
                 DaysInMonth = daysInMonth;
                 Start = start;
                 End = end;
@@ -181,6 +171,7 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                 NumberOfWeeks = numberOfWeeks;
             }
 
+            public IEnumerable<Day> Days { get; set; }
             public int DaysInMonth { get; set; }
             public int Start { get; set; }
             public int End { get; set; }
