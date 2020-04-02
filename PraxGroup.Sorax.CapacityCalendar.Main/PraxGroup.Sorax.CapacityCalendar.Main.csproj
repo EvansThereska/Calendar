@@ -59,6 +59,9 @@
     <Compile Include="CapacityDateTimePicker.cs" />
     <Compile Include="NativeCalls.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TodayButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

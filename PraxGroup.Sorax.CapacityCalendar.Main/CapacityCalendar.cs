@@ -29,6 +29,14 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
 
         public bool HighlightCurrentDay { get; set; }
 
+        public bool ShowTodayButton { get; set; }
+
+        public bool ShowArrowControls { get; set; }
+
+        private TodayButton _btnToday;
+        private NavigateLeftButton _btnLeft;
+        private NavigateRightButton _btnRight;
+
         public CapacityCalendar()
         {
             InitialiseComponents();
@@ -88,8 +96,8 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                         if (HighlightCurrentDay & IsToday(_calendarDate, day))
                         {
                             g.CompositingQuality = CompositingQuality.GammaCorrected;
-                            Pen dashed = new Pen(Color.Black, 0.5f) {DashStyle = DashStyle.Dot};
-                            Pen bold = new Pen(Color.Blue, 1.5f);
+                            var dashed = new Pen(Color.Black, 0.5f) {DashStyle = DashStyle.Dot};
+                            var bold = new Pen(Color.Blue, 1.5f);
                             g.DrawRectangle(bold, xStart, yStart, cellWidth - 1, cellHeight - 1);
                             g.DrawRectangle(dashed, xStart + 1f, yStart + 1f, cellWidth - 3f, cellHeight - 3f);
                             g.FillRectangle(new SolidBrush(Color.FromArgb(128, 204, 229, 255)), xStart, yStart, cellWidth, cellHeight);
