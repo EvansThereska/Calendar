@@ -15,6 +15,8 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
         private readonly Font _dayOfWeekFont = new Font("Arial", 10, FontStyle.Regular);
         private readonly Font _dateHeaderFont = new Font("Arial", 10, FontStyle.Regular);
 
+        private readonly string[] _dayNames = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
+
         private DateTime _calendarDate = DateTime.Now;
 
         // private bool _showArrowControls;
@@ -62,7 +64,7 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                     int cellHeight = effectiveHeight / alignInfo.NumberOfWeeks;
 
                     int xStart = MarginSize;
-                    int yStart = MarginSize + dateHeaderSize + daySpace;
+                    int yStart = MarginSize + dateHeaderSize + daySpace + 10;
                     
 
                     // Draw grid and dates
@@ -84,6 +86,32 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                             xStart += cellWidth;
                         }
                     }
+
+                    // Draw day names
+                    int xMonday = 0, xSunday = 0;
+                    yStart = MarginSize + dateHeaderSize;
+                    foreach (var dayName in _dayNames)
+                    {
+                        var measure = g.MeasureString(dayName, _dayOfWeekFont);
+                        var x = (int) (xStart + (cellWidth - measure.Width) / 2);
+                        g.DrawString(dayName, _dateHeaderFont, Brushes.Black, x, yStart);
+                        if (dayName.Equals("Mon"))
+                        {
+                            xMonday = x;
+                        } 
+                        else if (dayName.Equals("Sun"))
+                        {
+                            xSunday = x + (int) measure.Width;
+                        }
+                        
+                        xStart += cellWidth;
+                    }
+
+                    // Draw line
+                    var pen = Pens.LightGray;
+                    yStart = MarginSize + dateHeaderSize + daySpace + 5;
+                    g.DrawLine(pen, xMonday, yStart, xSunday, yStart);
+
                 }
                 e.Graphics.DrawImage(bitmap, 0, 0, ClientSize.Width, ClientSize.Height);
             }
