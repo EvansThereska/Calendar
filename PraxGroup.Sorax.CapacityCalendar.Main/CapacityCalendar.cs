@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
@@ -12,8 +13,8 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
     {
         private readonly Size DefaultSize = new Size(512, 440);
 
-        private readonly Font _dayOfWeekFont = new Font("Arial", 10, FontStyle.Regular);
-        private readonly Font _dateHeaderFont = new Font("Arial", 10, FontStyle.Regular);
+        private readonly Font _dayOfWeekFont = DefaultFont;
+        private readonly Font _dateHeaderFont = DefaultFont;
 
         private readonly string[] _dayNames = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
 
@@ -23,6 +24,10 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
 
         private const int MarginSize = 5;
         private const int NumberOfDaysAWeek = 7;
+
+        public bool Header { get; set; }
+
+        public bool HighlightCurrentDay { get; set; }
 
         public CapacityCalendar()
         {
@@ -67,6 +72,9 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                     int yStart = MarginSize + dateHeaderSize + daySpace + 10;
                     
 
+                    // Draw header
+
+
                     // Draw grid and dates
                     var gray = new SolidBrush(Color.FromArgb(170, 170, 170));
                     var black = Brushes.Black;
@@ -75,7 +83,18 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                     foreach (var day in alignInfo.Days)
                     {
                         var brush = day.IsRogue ? gray : black;
-                        g.DrawString(day.ToString(), _dayOfWeekFont, brush, xStart + (cellWidth - g.MeasureString(day.ToString(), _dayOfWeekFont).Width) / 2, yStart);
+                        g.DrawString(day.ToString(), _dayOfWeekFont, brush, xStart + (cellWidth - g.MeasureString(day.ToString(), _dayOfWeekFont).Width) / 2, yStart + (cellHeight - g.MeasureString(day.ToString(), _dayOfWeekFont).Height) / 2 - 1);
+
+                        if (HighlightCurrentDay & IsToday(_calendarDate, day))
+                        {
+                            g.CompositingQuality = CompositingQuality.GammaCorrected;
+                            Pen dashed = new Pen(Color.Black, 0.5f) {DashStyle = DashStyle.Dot};
+                            Pen bold = new Pen(Color.Blue, 1.5f);
+                            g.DrawRectangle(bold, xStart, yStart, cellWidth - 1, cellHeight - 1);
+                            g.DrawRectangle(dashed, xStart + 1f, yStart + 1f, cellWidth - 3f, cellHeight - 3f);
+                            g.FillRectangle(new SolidBrush(Color.FromArgb(128, 204, 229, 255)), xStart, yStart, cellWidth, cellHeight);
+                        }
+
                         if (++dayCount % NumberOfDaysAWeek == 0)
                         {
                             xStart = MarginSize;
@@ -115,6 +134,12 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                 }
                 e.Graphics.DrawImage(bitmap, 0, 0, ClientSize.Width, ClientSize.Height);
             }
+        }
+
+        private static bool IsToday(DateTime date, Day day)
+        {
+            var now = DateTime.Now;
+            return date.Year == now.Year && date.Month == now.Month && day.Value == now.Day && !day.IsRogue;
         }
 
         internal MonthInfo CalculateNumberOfWeeks(int year, int month)

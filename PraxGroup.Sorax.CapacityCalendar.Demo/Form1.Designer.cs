@@ -48,6 +48,7 @@ namespace PraxGroup.Sorax.CapacityCalendar.Demo
             this._calendar.Size = new System.Drawing.Size(300, 200);
             this._calendar.Name = "_calendar";
             this._calendar.BackColor = Color.White;
+            this._calendar.HighlightCurrentDay = true;
 
             this.Controls.Add(this._btnTxtBox);
             this.Controls.Add(this._calendar);
