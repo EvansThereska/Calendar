@@ -66,10 +66,21 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             _btnLeft.Size = new Size(20, 20);
             Controls.Add(_btnLeft);
 
+            _btnToday.Name = "_buttonToday";
+            _btnToday.Text = @">";
+            _btnToday.FlatStyle = FlatStyle.Flat; 
+            _btnToday.BackColor = Color.Transparent;
+            _btnToday.FlatAppearance.BorderSize = 0;
+            _btnToday.Size = new Size(100, 40);
+            _btnToday.Text = @"Today: " + DateTime.Now.ToString("dd/MM/yyyy");
+            Controls.Add(_btnToday);
+
+
             Paint += CalendarPaint;
             Name = nameof(CapacityCalendar);
             Size = DefaultSize;
             DoubleBuffered = true;
+
             ResumeLayout(false);
         }
 
@@ -96,7 +107,7 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                     int effectiveHeight = ClientSize.Height - (daySpace + dateHeaderSize + MarginSize);
                     var alignInfo = CalculateNumberOfWeeks(_calendarDate.Year, _calendarDate.Month);
                     int cellWidth = effectiveWidth / NumberOfDaysAWeek;
-                    int cellHeight = effectiveHeight / alignInfo.NumberOfWeeks;
+                    int cellHeight = (effectiveHeight - 30) / alignInfo.NumberOfWeeks;
 
                     int xStart = MarginSize;
                     int yStart = MarginSize + dateHeaderSize + daySpace + 10;
@@ -133,6 +144,8 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                         }
                     }
 
+                    var endOfGrid = yStart;
+
                     // Draw day names
                     int xMondayBegin = 0, xSundayEnd = 0;
                     yStart = MarginSize + dateHeaderSize;
@@ -158,8 +171,7 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                     yStart = MarginSize + dateHeaderSize + daySpace + 5;
                     g.DrawLine(pen, xMondayBegin, yStart, xSundayEnd, yStart);
 
-                    // Draw header and left/right buttons
-                    // _btnRight.Location = new Point(ClientSize.Width - MarginSize - _btnRight.Width, MarginSize);
+                    // Position header and left/right buttons
                     _btnLeft.Location = new Point(xMondayBegin -(int) (_btnLeft.Width * 0.25), MarginSize);
                     _btnRight.Location = new Point(xSundayEnd - (int) (_btnRight.Width * 0.75), MarginSize);
                     
@@ -167,6 +179,9 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                     var monthAndYear = _calendarDate.ToString("MMMM") + " " + _calendarDate.ToString("yyyy");
                     var monthAndYearWidth = (int) g.MeasureString(monthAndYear, _dateHeaderFont).Width;
                     g.DrawString(monthAndYear, _dateHeaderFont, Brushes.Black, (ClientSize.Width - monthAndYearWidth) / 2 + 1, MarginSize + 5.5f);
+
+                    // Draw Today button
+                    _btnToday.Location = new Point((ClientSize.Width - _btnToday.Width) / 2, endOfGrid);
 
                 }
                 e.Graphics.DrawImage(bitmap, 0, 0, ClientSize.Width, ClientSize.Height);

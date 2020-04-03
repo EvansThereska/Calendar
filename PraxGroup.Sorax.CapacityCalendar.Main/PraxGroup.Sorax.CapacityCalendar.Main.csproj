@@ -57,6 +57,9 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="CapacityDateTimePicker.cs" />
+    <Compile Include="CustomButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="NativeCalls.cs" />
     <Compile Include="NavigateLeftButton.cs">
       <SubType>Component</SubType>

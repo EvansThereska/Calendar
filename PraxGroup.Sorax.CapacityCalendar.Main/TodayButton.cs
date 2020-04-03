@@ -2,7 +2,7 @@
 
 namespace PraxGroup.Sorax.CapacityCalendar.Main
 {
-    internal class TodayButton : Button
+    internal class TodayButton : CustomButton
     {
 
     }

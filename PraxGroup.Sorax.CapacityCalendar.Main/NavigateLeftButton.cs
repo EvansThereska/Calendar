@@ -2,7 +2,7 @@
 
 namespace PraxGroup.Sorax.CapacityCalendar.Main
 {
-    internal class NavigateLeftButton : Button
+    internal class NavigateLeftButton : CustomButton
     {
     }
 }
