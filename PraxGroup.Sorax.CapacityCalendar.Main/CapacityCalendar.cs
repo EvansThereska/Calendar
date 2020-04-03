@@ -11,8 +11,6 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
 {
     public class CapacityCalendar : UserControl
     {
-        private readonly Size DefaultSize = new Size(512, 440);
-
         private readonly Font _dayOfWeekFont = DefaultFont;
         private readonly Font _dateHeaderFont = DefaultFont;
 
@@ -20,18 +18,10 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
 
         private DateTime _calendarDate = DateTime.Now;
 
-        // private bool _showArrowControls;
-
         private const int MarginSize = 5;
         private const int NumberOfDaysAWeek = 7;
 
-        public bool Header { get; set; }
-
         public bool HighlightCurrentDay { get; set; }
-
-        public bool ShowTodayButton { get; set; }
-
-        public bool ShowArrowControls { get; set; }
 
         private TodayButton _btnToday;
         private NavigateLeftButton _btnLeft;
@@ -44,43 +34,23 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
 
         private void InitialiseComponents()
         {
-            _btnToday = new TodayButton();
-            _btnLeft = new NavigateLeftButton();
-            _btnRight = new NavigateRightButton();
             SuspendLayout();
 
-            _btnRight.Name = "_btnRight";
-            _btnRight.Text = @">";
-            _btnRight.FlatStyle = FlatStyle.Flat; 
-            _btnRight.BackColor = Color.Transparent;
-            _btnRight.FlatAppearance.BorderSize = 0;
-            _btnRight.Size = new Size(20, 20);
-            Controls.Add(_btnRight);
+            _btnToday = new TodayButton {Name = "_btnToday"};
+            _btnLeft = new NavigateLeftButton {Name = "_btnLeft"};
+            _btnRight = new NavigateRightButton {Name = "_btnRight"};
 
-            _btnLeft.Name = "_btnLeft";
-            _btnLeft.Text = @"<";
-            _btnLeft.FlatStyle = FlatStyle.Flat; 
-            _btnLeft.BackColor = Color.Transparent;
-            _btnLeft.FlatAppearance.BorderSize = 0;
-            _btnLeft.Padding = Padding.Empty;
-            _btnLeft.Size = new Size(20, 20);
-            Controls.Add(_btnLeft);
-
-            _btnToday.Name = "_buttonToday";
-            _btnToday.Text = @">";
-            _btnToday.FlatStyle = FlatStyle.Flat; 
-            _btnToday.BackColor = Color.Transparent;
-            _btnToday.FlatAppearance.BorderSize = 0;
-            _btnToday.Size = new Size(100, 40);
-            _btnToday.Text = @"Today: " + DateTime.Now.ToString("dd/MM/yyyy");
-            Controls.Add(_btnToday);
-
-
-            Paint += CalendarPaint;
-            Name = nameof(CapacityCalendar);
-            Size = DefaultSize;
+            Size = new Size(512, 440);
             DoubleBuffered = true;
+            
+            Paint += CalendarPaint;
+            
+            Size = new Size(512, 440);
 
+            Controls.Add(_btnRight);
+            Controls.Add(_btnLeft);
+            Controls.Add(_btnToday);
+            
             ResumeLayout(false);
         }
 

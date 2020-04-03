@@ -4,42 +4,70 @@ using System.Windows.Forms;
 
 namespace PraxGroup.Sorax.CapacityCalendar.Main
 {
-    public class CustomButton : Button
+    public class CustomButton : UserControl
     {
+        private bool _mouseOver;
         private const int MarginSize = 5;
 
-        protected override void OnPaint(PaintEventArgs e)
+        public CustomButton()
         {
-            using (var bitmap = new Bitmap(ClientSize.Width, ClientSize.Height))
+            InitialiseComponents();
+        }
+
+        private void InitialiseComponents()
+        {
+            SuspendLayout();
+            BackColor = Color.Transparent;
+            DoubleBuffered = true;
+            Size = new Size(100, 40);
+            MouseEnter += OnCustomButtonMouseEnter;
+            MouseLeave += OnCustomButtonMouseLeave;
+            Paint += OnCustomButtonPaint;
+            LostFocus += OnFocus;
+            GotFocus += OnFocus;
+            // this.MouseLeave += new System.EventHandler(this.CoolButtonMouseLeave);
+            // this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.CoolButtonMouseUp);
+            // this.SizeChanged += new System.EventHandler(this.CoolButtonSizeChanged);
+            ResumeLayout(false);
+        }
+
+        private void OnCustomButtonMouseLeave(object sender, EventArgs e)
+        {
+            _mouseOver = false;
+            Refresh();
+        }
+
+        private void OnCustomButtonMouseEnter(object sender, EventArgs e)
+        {
+            _mouseOver = true;
+            Refresh();
+        }
+
+        private void OnFocus(object sender, EventArgs e)
+        {
+            Refresh();
+        }
+
+        private void OnCustomButtonPaint(object sender, PaintEventArgs e)
+        {
+            using (var bmp = new Bitmap(ClientSize.Width, ClientSize.Height))
             {
-                using (var g = Graphics.FromImage(bitmap))
+                using (var g = Graphics.FromImage(bmp))
                 {
                     e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
                     g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
-                    
                     using (var p = new Pen(Color.White))
                     {
                         g.FillRectangle(p.Brush, ClientRectangle);
                     }
-                    var measure = g.MeasureString(Text, DefaultFont);
+                    var measure = e.Graphics.MeasureString(Text, DefaultFont);
                     Size = new Size((int) measure.Width + MarginSize * 2, (int) measure.Height + MarginSize * 2);
-                    g.DrawString(Text, DefaultFont, Brushes.Black, (ClientSize.Width - measure.Width) / 2, (ClientSize.Height - measure.Height) / 2);
+                    var brush = _mouseOver ? Brushes.DodgerBlue : Brushes.Black;
+                    g.DrawString(Text, DefaultFont, brush, (ClientSize.Width - measure.Width) / 2, (ClientSize.Height - measure.Height) / 2);
                 }
-                e.Graphics.DrawImage(bitmap, 0, 0, Size.Width, Size.Height);
+
+                e.Graphics.DrawImage(bmp, 0, 0, ClientSize.Width, ClientSize.Height);
             }
-
-            Show();
-            
-        }
-
-        protected override void OnMouseEnter(EventArgs e)
-        {
-            // Get rid of the annoying colour change on mouse enter
-        }
-
-        protected override void OnMouseClick(MouseEventArgs e)
-        {
-            // base.OnMouseClick(e);
         }
     }
 }
