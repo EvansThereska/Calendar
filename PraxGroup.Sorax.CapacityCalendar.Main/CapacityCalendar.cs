@@ -44,7 +44,28 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
 
         private void InitialiseComponents()
         {
+            _btnToday = new TodayButton();
+            _btnLeft = new NavigateLeftButton();
+            _btnRight = new NavigateRightButton();
             SuspendLayout();
+
+            _btnRight.Name = "_btnRight";
+            _btnRight.Text = @">";
+            _btnRight.FlatStyle = FlatStyle.Flat; 
+            _btnRight.BackColor = Color.Transparent;
+            _btnRight.FlatAppearance.BorderSize = 0;
+            _btnRight.Size = new Size(20, 20);
+            Controls.Add(_btnRight);
+
+            _btnLeft.Name = "_btnLeft";
+            _btnLeft.Text = @"<";
+            _btnLeft.FlatStyle = FlatStyle.Flat; 
+            _btnLeft.BackColor = Color.Transparent;
+            _btnLeft.FlatAppearance.BorderSize = 0;
+            _btnLeft.Padding = Padding.Empty;
+            _btnLeft.Size = new Size(20, 20);
+            Controls.Add(_btnLeft);
+
             Paint += CalendarPaint;
             Name = nameof(CapacityCalendar);
             Size = DefaultSize;
@@ -68,7 +89,8 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
 
                     string monthAsString = _calendarDate.ToString("MMMM");
                     string yearAsString = _calendarDate.Year.ToString(CultureInfo.InvariantCulture);
-                    int dateHeaderSize = (int) g.MeasureString(monthAsString + " " + yearAsString, _dateHeaderFont).Height;
+                    var heightOfMonthAndYear = (int) g.MeasureString(monthAsString + " " + yearAsString, _dateHeaderFont).Height;
+                    int dateHeaderSize = heightOfMonthAndYear + 20;
                     int daySpace = MaxDaySize(g).Height;
                     int effectiveWidth = ClientSize.Width - MarginSize;
                     int effectiveHeight = ClientSize.Height - (daySpace + dateHeaderSize + MarginSize);
@@ -79,9 +101,6 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                     int xStart = MarginSize;
                     int yStart = MarginSize + dateHeaderSize + daySpace + 10;
                     
-
-                    // Draw header
-
 
                     // Draw grid and dates
                     var gray = new SolidBrush(Color.FromArgb(170, 170, 170));
@@ -115,7 +134,7 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                     }
 
                     // Draw day names
-                    int xMonday = 0, xSunday = 0;
+                    int xMondayBegin = 0, xSundayEnd = 0;
                     yStart = MarginSize + dateHeaderSize;
                     foreach (var dayName in _dayNames)
                     {
@@ -124,11 +143,11 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                         g.DrawString(dayName, _dateHeaderFont, Brushes.Black, x, yStart);
                         if (dayName.Equals("Mon"))
                         {
-                            xMonday = x;
+                            xMondayBegin = x;
                         } 
                         else if (dayName.Equals("Sun"))
                         {
-                            xSunday = x + (int) measure.Width;
+                            xSundayEnd = x + (int) measure.Width;
                         }
                         
                         xStart += cellWidth;
@@ -137,7 +156,17 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                     // Draw line
                     var pen = Pens.LightGray;
                     yStart = MarginSize + dateHeaderSize + daySpace + 5;
-                    g.DrawLine(pen, xMonday, yStart, xSunday, yStart);
+                    g.DrawLine(pen, xMondayBegin, yStart, xSundayEnd, yStart);
+
+                    // Draw header and left/right buttons
+                    // _btnRight.Location = new Point(ClientSize.Width - MarginSize - _btnRight.Width, MarginSize);
+                    _btnLeft.Location = new Point(xMondayBegin -(int) (_btnLeft.Width * 0.25), MarginSize);
+                    _btnRight.Location = new Point(xSundayEnd - (int) (_btnRight.Width * 0.75), MarginSize);
+                    
+                    // Draw month
+                    var monthAndYear = _calendarDate.ToString("MMMM") + " " + _calendarDate.ToString("yyyy");
+                    var monthAndYearWidth = (int) g.MeasureString(monthAndYear, _dateHeaderFont).Width;
+                    g.DrawString(monthAndYear, _dateHeaderFont, Brushes.Black, (ClientSize.Width - monthAndYearWidth) / 2 + 1, MarginSize + 5.5f);
 
                 }
                 e.Graphics.DrawImage(bitmap, 0, 0, ClientSize.Width, ClientSize.Height);
