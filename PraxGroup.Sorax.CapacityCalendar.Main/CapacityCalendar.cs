@@ -23,16 +23,18 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
 
         public bool HighlightCurrentDay { get; set; }
 
+        private readonly List<CalendarDayPoint> _calendarDayPoints = new List<CalendarDayPoint>();
+
         private TodayButton _btnToday;
         private NavigateLeftButton _btnLeft;
         private NavigateRightButton _btnRight;
 
         public CapacityCalendar()
         {
-            InitialiseComponents();
+            InitializeComponents();
         }
 
-        private void InitialiseComponents()
+        private void InitializeComponents()
         {
             SuspendLayout();
 
@@ -40,9 +42,9 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             _btnLeft = new NavigateLeftButton {Name = "_btnLeft"};
             _btnRight = new NavigateRightButton {Name = "_btnRight"};
 
-            _btnToday.ButtonClicked += OnButtonTodayClicked;
-            _btnLeft.ButtonClicked += OnButtonLeftClicked;
-            _btnRight.ButtonClicked += OnButtonRightClicked;
+            _btnToday.ButtonClicked += OnTodayButtonClicked;
+            _btnLeft.ButtonClicked += OnLeftButtonClicked;
+            _btnRight.ButtonClicked += OnRightButtonClicked;
 
             Size = new Size(512, 440);
             DoubleBuffered = true;
@@ -54,31 +56,45 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             Controls.Add(_btnRight);
             Controls.Add(_btnLeft);
             Controls.Add(_btnToday);
+
+            // MouseMove += OnCalendarMouseMove;   // useful for tooltips (trailing effects etc)
             
             ResumeLayout(false);
         }
 
-        private void OnButtonRightClicked(object sender)
+        private void OnRightButtonClicked(object sender)
         {
             _calendarDate = _calendarDate.AddMonths(1);
             Refresh();
         }
 
-        private void OnButtonLeftClicked(object sender)
+        private void OnLeftButtonClicked(object sender)
         {
             _calendarDate = _calendarDate.AddMonths(-1);
             Refresh();
         }
 
-        private void OnButtonTodayClicked(object sender)
+        private void OnTodayButtonClicked(object sender)
         {
             _calendarDate = DateTime.Now;
             Refresh();
         }
 
+        public override void Refresh()
+        {
+            _calendarDayPoints.Clear();
+            base.Refresh();
+        }
+
         private void CalendarPaint(object sender, PaintEventArgs e)
         {
+            _calendarDayPoints.Clear();
             RenderCalendar(e);
+        }
+
+        public void AddTodayHandler(CustomButton.ButtonClickedArgs args)
+        {
+            _btnToday.ButtonClicked += args;
         }
 
         private void RenderCalendar(PaintEventArgs e)
@@ -114,6 +130,8 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                     {
                         var brush = day.IsRogue ? gray : black;
                         g.DrawString(day.ToString(), _dayOfWeekFont, brush, xStart + (cellWidth - g.MeasureString(day.ToString(), _dayOfWeekFont).Width) / 2, yStart + (cellHeight - g.MeasureString(day.ToString(), _dayOfWeekFont).Height) / 2 - 1);
+
+                        _calendarDayPoints.Add(new CalendarDayPoint(day.Date, new Rectangle(xStart, yStart, cellWidth, cellHeight)));
 
                         if (HighlightCurrentDay & IsToday(_calendarDate, day))
                         {
@@ -180,6 +198,23 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             }
         }
 
+        // private void OnCalendarMouseMove(object sender, MouseEventArgs e)
+        // {
+        //     throw new NotImplementedException();
+        // }
+
+        public DateTime? GetDateFromCoordinate(int x, int y)
+        {
+            foreach (var dayPoint in _calendarDayPoints)
+            {
+                if (dayPoint.Contains(x, y))
+                {
+                    return dayPoint.Date;
+                }
+            }
+            return null;
+        }
+
         private static bool IsToday(DateTime date, Day day)
         {
             var now = DateTime.Now;
@@ -218,24 +253,25 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             var days = new List<Day>();
             if (leftPadding > 0)
             {
-                var prevMonth = _calendarDate.AddMonths(-1);
-                var prevNoOfDays = DateTime.DaysInMonth(prevMonth.Year, prevMonth.Month);
+                var prevMonthDate = _calendarDate.AddMonths(-1);
+                var prevNoOfDays = DateTime.DaysInMonth(prevMonthDate.Year, prevMonthDate.Month);
                 while (leftPadding-- > 0)
                 {
-                    days.Add(new Day(prevNoOfDays - leftPadding, true));
+                    days.Add(new Day(prevNoOfDays - leftPadding, true, new DateTime(prevMonthDate.Year, prevMonthDate.Month, prevNoOfDays - leftPadding)));
                 }
             }
 
             for (var i = 1; i <= daysInMonth; i++)
             {
-                days.Add(new Day(i, false));
+                days.Add(new Day(i, false, new DateTime(_calendarDate.Year, _calendarDate.Month, i)));
             }
 
             if (rightPadding > 0)
             {
+                var nextMonthDate = _calendarDate.AddMonths(1);
                 while (rightPadding-- > 0)
                 {
-                    days.Add(new Day(rightPadding + 1, true));
+                    days.Add(new Day(rightPadding + 1, true, new DateTime(nextMonthDate.Year, nextMonthDate.Month, rightPadding + 1)));
                 }
             }
 
@@ -294,6 +330,25 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             public int Width;
         }
         
+        private class CalendarDayPoint
+        {
+            private readonly Rectangle _rectangle;
+
+            public CalendarDayPoint(DateTime date, Rectangle rectangle)
+            {
+                Date = date;
+                _rectangle = rectangle;
+            }
+
+            public DateTime Date { get; }
+
+            public bool Contains(int x, int y)
+            {
+                return _rectangle.Contains(x, y);
+            }
+        }
+
+
         internal struct MonthInfo
         {
             internal MonthInfo(int daysInMonth, int start, int end, int rogueBefore, int rogueAfter, int numberOfWeeks, IEnumerable<Day> days)
@@ -318,10 +373,11 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
 
         internal class Day
         {
-            public Day(int value, bool isRogue)
+            public Day(int value, bool isRogue, DateTime date)
             {
                 Value = value;
                 IsRogue = isRogue;
+                Date = date;
             }
 
             public int Value { get; private set; }
@@ -329,6 +385,8 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             public DayOfWeek DayOfWeek { get; set; }
             
             public bool IsRogue { get; set; }
+            
+            public DateTime Date { get; }
 
             public override string ToString()
             {

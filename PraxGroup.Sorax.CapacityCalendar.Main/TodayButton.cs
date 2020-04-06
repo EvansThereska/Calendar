@@ -24,7 +24,11 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             this.Name = "TodayButton";
             this.Size = new System.Drawing.Size(10, 10);
             this.ResumeLayout(false);
+        }
 
+        public override string ToString()
+        {
+            return Text;
         }
     }
 }
