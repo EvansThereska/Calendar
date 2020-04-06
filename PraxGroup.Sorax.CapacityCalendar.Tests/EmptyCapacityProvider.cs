@@ -9,5 +9,10 @@ namespace PraxGroup.Sorax.CapacityCalendar.Tests
         {
             throw new NotImplementedException();
         }
+
+        public void GetCapacity(DateTime date, int[][][] buffer)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

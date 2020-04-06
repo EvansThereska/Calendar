@@ -73,12 +73,14 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
         private void OnRightButtonClicked(object sender)
         {
             _calendarDate = _calendarDate.AddMonths(1);
+            _capacityProvider.GetCapacity(_calendarDate, _capacity);
             Refresh();
         }
 
         private void OnLeftButtonClicked(object sender)
         {
             _calendarDate = _calendarDate.AddMonths(-1);
+            _capacityProvider.GetCapacity(_calendarDate, _capacity);
             Refresh();
         }
 
