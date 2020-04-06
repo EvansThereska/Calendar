@@ -6,13 +6,20 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
 {
     public class CustomButton : UserControl
     {
-        private bool _mouseOver;
         private const int MarginSize = 5;
+
+        private bool _mouseOver;
+        private bool _mouseDown;
 
         public CustomButton()
         {
             InitialiseComponents();
         }
+
+        public delegate void ButtonClickedArgs (object sender);
+
+        public event ButtonClickedArgs ButtonClicked;
+
 
         private void InitialiseComponents()
         {
@@ -25,15 +32,43 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             Paint += OnCustomButtonPaint;
             LostFocus += OnFocus;
             GotFocus += OnFocus;
-            // this.MouseLeave += new System.EventHandler(this.CoolButtonMouseLeave);
-            // this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.CoolButtonMouseUp);
-            // this.SizeChanged += new System.EventHandler(this.CoolButtonSizeChanged);
+            MouseDown += OnCustomButtonMouseDown;
+            MouseUp += OnCustomButtonMouseUp;
+            SizeChanged += OnCustomButtonSizeChanged;
             ResumeLayout(false);
+        }
+
+        private void OnCustomButtonSizeChanged(object sender, EventArgs e)
+        {
+            Refresh();
+        }
+
+        private void OnCustomButtonMouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Left)
+            {
+                return;
+            }
+            
+            if (_mouseDown)
+            {
+                ButtonClicked?.Invoke(this);
+            }
+            _mouseDown = false;
+        }
+
+        private void OnCustomButtonMouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                _mouseDown = true;
+            }
         }
 
         private void OnCustomButtonMouseLeave(object sender, EventArgs e)
         {
             _mouseOver = false;
+            _mouseDown = false;
             Refresh();
         }
 

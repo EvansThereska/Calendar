@@ -40,6 +40,10 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             _btnLeft = new NavigateLeftButton {Name = "_btnLeft"};
             _btnRight = new NavigateRightButton {Name = "_btnRight"};
 
+            _btnToday.ButtonClicked += OnButtonTodayClicked;
+            _btnLeft.ButtonClicked += OnButtonLeftClicked;
+            _btnRight.ButtonClicked += OnButtonRightClicked;
+
             Size = new Size(512, 440);
             DoubleBuffered = true;
             
@@ -52,6 +56,24 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             Controls.Add(_btnToday);
             
             ResumeLayout(false);
+        }
+
+        private void OnButtonRightClicked(object sender)
+        {
+            _calendarDate = _calendarDate.AddMonths(1);
+            Refresh();
+        }
+
+        private void OnButtonLeftClicked(object sender)
+        {
+            _calendarDate = _calendarDate.AddMonths(-1);
+            Refresh();
+        }
+
+        private void OnButtonTodayClicked(object sender)
+        {
+            _calendarDate = DateTime.Now;
+            Refresh();
         }
 
         private void CalendarPaint(object sender, PaintEventArgs e)
