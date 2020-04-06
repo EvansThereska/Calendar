@@ -1,5 +1,4 @@
 ﻿using System.Drawing;
-using PraxGroup.Sorax.CapacityCalendar.Main;
 
 namespace PraxGroup.Sorax.CapacityCalendar.Demo
 {
@@ -49,6 +48,7 @@ namespace PraxGroup.Sorax.CapacityCalendar.Demo
             this._calendar.Name = "_calendar";
             this._calendar.BackColor = Color.White;
             this._calendar.HighlightCurrentDay = true;
+            this._calendar.CapacityProvider = new RandomCapacityProvider();
 
             this.Controls.Add(this._btnTxtBox);
             this.Controls.Add(this._calendar);

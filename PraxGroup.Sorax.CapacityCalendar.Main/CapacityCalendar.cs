@@ -23,6 +23,8 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
 
         public bool HighlightCurrentDay { get; set; }
 
+        public ICapacityProvider CapacityProvider { get; set; }
+
         private TodayButton _btnToday;
         private NavigateLeftButton _btnLeft;
         private NavigateRightButton _btnRight;
@@ -125,6 +127,12 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                             g.FillRectangle(new SolidBrush(Color.FromArgb(128, 204, 229, 255)), xStart, yStart, cellWidth, cellHeight);
                         }
 
+                        // Deal with capacities for this day
+                        var dailyCapacities = CapacityProvider.GetAvailable(day.Date);  // actually a tuple
+                        
+
+
+
                         if (++dayCount % NumberOfDaysAWeek == 0)
                         {
                             xStart = MarginSize;
@@ -222,20 +230,21 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                 var prevNoOfDays = DateTime.DaysInMonth(prevMonth.Year, prevMonth.Month);
                 while (leftPadding-- > 0)
                 {
-                    days.Add(new Day(prevNoOfDays - leftPadding, true));
+                    days.Add(new Day(prevNoOfDays - leftPadding, true, new DateTime(prevMonth.Year, prevMonth.Month, prevNoOfDays - leftPadding)));
                 }
             }
 
             for (var i = 1; i <= daysInMonth; i++)
             {
-                days.Add(new Day(i, false));
+                days.Add(new Day(i, false, new DateTime(_calendarDate.Year, _calendarDate.Month, i)));
             }
 
             if (rightPadding > 0)
             {
+                var next = _calendarDate.AddMonths(1);
                 while (rightPadding-- > 0)
                 {
-                    days.Add(new Day(rightPadding + 1, true));
+                    days.Add(new Day(rightPadding + 1, true, new DateTime(_calendarDate.Year, _calendarDate.Month, rightPadding + 1)));
                 }
             }
 
@@ -318,10 +327,11 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
 
         internal class Day
         {
-            public Day(int value, bool isRogue)
+            public Day(int value, bool isRogue, DateTime date)
             {
                 Value = value;
                 IsRogue = isRogue;
+                Date = date;
             }
 
             public int Value { get; private set; }
@@ -329,6 +339,8 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             public DayOfWeek DayOfWeek { get; set; }
             
             public bool IsRogue { get; set; }
+
+            public DateTime Date { get; set; }
 
             public override string ToString()
             {
