@@ -36,7 +36,7 @@ namespace PraxGroup.Sorax.CapacityCalendar.Demo
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Text = "Form1";
 
-            _capacityDtp = new PraxGroup.Sorax.CapacityCalendar.Main.CapacityDateTimePicker();
+            _capacityDtp = new PraxGroup.Sorax.CapacityCalendar.Main.CapacityDateTimePicker(new DummyCapacityProvider());
             _capacityDtp.Size = new System.Drawing.Size(800, 450);
             _capacityDtp.Location = new System.Drawing.Point(505, 27);
 

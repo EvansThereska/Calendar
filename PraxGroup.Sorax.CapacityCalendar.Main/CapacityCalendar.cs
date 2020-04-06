@@ -11,12 +11,17 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
 {
     public class CapacityCalendar : UserControl
     {
+        private readonly ICapacityProvider _capacityProvider;
         private readonly Font _dayOfWeekFont = DefaultFont;
         private readonly Font _dateHeaderFont = DefaultFont;
 
         private readonly string[] _dayNames = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
 
         private DateTime _calendarDate = DateTime.Now;
+
+        private int[][][] _capacity;
+
+        private bool IsCapacityLoaded { get; set; }
 
         private const int MarginSize = 5;
         private const int NumberOfDaysAWeek = 7;
@@ -29,8 +34,9 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
         private NavigateLeftButton _btnLeft;
         private NavigateRightButton _btnRight;
 
-        public CapacityCalendar()
+        public CapacityCalendar(ICapacityProvider capacityProvider)
         {
+            _capacityProvider = capacityProvider;
             InitializeComponents();
         }
 
@@ -45,6 +51,8 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             _btnToday.ButtonClicked += OnTodayButtonClicked;
             _btnLeft.ButtonClicked += OnLeftButtonClicked;
             _btnRight.ButtonClicked += OnRightButtonClicked;
+
+            Load += OnCustomCalendarLoad;
 
             Size = new Size(512, 440);
             DoubleBuffered = true;
@@ -113,9 +121,9 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                     int daySpace = MaxDaySize(g).Height;
                     int effectiveWidth = ClientSize.Width - MarginSize;
                     int effectiveHeight = ClientSize.Height - (daySpace + dateHeaderSize + MarginSize);
-                    var alignInfo = CalculateNumberOfWeeks(_calendarDate.Year, _calendarDate.Month);
+                    var monthInfo = CalculateNumberOfWeeks(_calendarDate.Year, _calendarDate.Month);
                     int cellWidth = effectiveWidth / NumberOfDaysAWeek;
-                    int cellHeight = (effectiveHeight - 30) / alignInfo.NumberOfWeeks;
+                    int cellHeight = (effectiveHeight - 30) / monthInfo.NumberOfWeeks;
 
                     int xStart = MarginSize;
                     int yStart = MarginSize + dateHeaderSize + daySpace + 10;
@@ -126,7 +134,8 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                     var black = Brushes.Black;
 
                     var dayCount = 0;
-                    foreach (var day in alignInfo.Days)
+                    var thisMonthDayOffset = 0;
+                    foreach (var day in monthInfo.Days)
                     {
                         var brush = day.IsRogue ? gray : black;
                         g.DrawString(day.ToString(), _dayOfWeekFont, brush, xStart + (cellWidth - g.MeasureString(day.ToString(), _dayOfWeekFont).Width) / 2, yStart + (cellHeight - g.MeasureString(day.ToString(), _dayOfWeekFont).Height) / 2 - 1);
@@ -142,6 +151,32 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                             g.DrawRectangle(dashed, xStart + 1f, yStart + 1f, cellWidth - 3f, cellHeight - 3f);
                             g.FillRectangle(new SolidBrush(Color.FromArgb(128, 204, 229, 255)), xStart, yStart, cellWidth, cellHeight);
                         }
+
+                        // We do the capacity drawing here
+                        if (!day.IsRogue && thisMonthDayOffset < monthInfo.DaysInMonth)
+                        {
+                            var dayCapacity = _capacity[thisMonthDayOffset];
+                            // 0...am,  1...pm,  0.. total ... 1.. available
+                            var amRow = dayCapacity[0];
+                            var pmRow = dayCapacity[1];
+                            if (amRow[0] > 0)   // amTotal
+                            {
+                                var fractionUsed = (decimal)amRow[1] / amRow[0];
+                                // var amPercentUsed = (int) (fractionUsed * 100);
+                                g.FillRectangle(new SolidBrush(Color.FromArgb(128, 91, 182, 146)), xStart, yStart, (int)(cellWidth * fractionUsed), cellHeight / 2);
+                            }
+
+                            if (pmRow[0] > 0)   // pmTotal
+                            {
+                                var fractionUsed = (decimal)pmRow[1] / pmRow[0];
+                                // var amPercentUsed = (int) (fractionUsed * 100);
+                                g.FillRectangle(new SolidBrush(Color.FromArgb(128, 72, 37, 152)), xStart, yStart + cellHeight / 2, (int)(cellWidth * fractionUsed), cellHeight / 2);
+                            }
+
+                            thisMonthDayOffset++;
+                        }
+                        
+
 
                         if (++dayCount % NumberOfDaysAWeek == 0)
                         {
@@ -202,6 +237,13 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
         // {
         //     throw new NotImplementedException();
         // }
+
+        private void OnCustomCalendarLoad(object sender, EventArgs e)
+        {
+            // Here we load our capacity data.. do this async as some point
+            _capacity = _capacityProvider.GetCapacity(_calendarDate);
+
+        }
 
         public DateTime? GetDateFromCoordinate(int x, int y)
         {

@@ -12,10 +12,13 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
         private ButtonTextBox _btnTxtBox;
         private CapacityCalendar _calendar;
 
+        private readonly ICapacityProvider _capacityProvider;
+
         private bool _isVisible;
 
-        public CapacityDateTimePicker()
+        public CapacityDateTimePicker(ICapacityProvider capacityProvider)
         {
+            _capacityProvider = capacityProvider;
             InitializeComponents();
             _btnTxtBox.ButtonClick += OnButtonClick;
         }
@@ -23,7 +26,7 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
         private void InitializeComponents()
         {
             _btnTxtBox = new ButtonTextBox();
-            _calendar = new CapacityCalendar();
+            _calendar = new CapacityCalendar(_capacityProvider);
             SuspendLayout();
 
             // this._btnTxtBox.Location = new System.Drawing.Point(505, 27);

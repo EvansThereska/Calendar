@@ -62,6 +62,7 @@
     <Compile Include="CustomButton.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="ICapacityProvider.cs" />
     <Compile Include="NativeCalls.cs" />
     <Compile Include="NavigateLeftButton.cs">
       <SubType>UserControl</SubType>
