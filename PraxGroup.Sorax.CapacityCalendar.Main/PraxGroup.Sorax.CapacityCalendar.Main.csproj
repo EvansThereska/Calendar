@@ -56,7 +56,9 @@
     <Compile Include="CapacityCalendar.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="CapacityDateTimePicker.cs" />
+    <Compile Include="CapacityDateTimePicker.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="CustomButton.cs">
       <SubType>UserControl</SubType>
     </Compile>
