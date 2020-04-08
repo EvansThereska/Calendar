@@ -142,7 +142,9 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                         var brush = day.IsRogue ? gray : black;
                         g.DrawString(day.ToString(), _dayOfWeekFont, brush, xStart + (cellWidth - g.MeasureString(day.ToString(), _dayOfWeekFont).Width) / 2, yStart + (cellHeight - g.MeasureString(day.ToString(), _dayOfWeekFont).Height) / 2 - 1);
 
-                        _calendarDayPoints.Add(new CalendarDayPoint(day.Date, new Rectangle(xStart, yStart, cellWidth, cellHeight)));
+                        var dayPoint = new CalendarDayPoint(day.Date, new Rectangle(xStart, yStart, cellWidth, cellHeight));
+
+                        _calendarDayPoints.Add(dayPoint);
 
                         if (HighlightCurrentDay & IsToday(_calendarDate, day))
                         {
@@ -161,18 +163,31 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                             // 0...am,  1...pm,  0.. total ... 1.. available
                             var amRow = dayCapacity[0];
                             var pmRow = dayCapacity[1];
-                            if (amRow[0] > 0)   // amTotal
+                            if (amRow[0] > 0)   // AM Total
                             {
+                                var x = xStart;
+                                var y = yStart;
+                                var width = cellWidth;
+                                var height = cellHeight / 2;
+
                                 var fractionUsed = (decimal)amRow[1] / amRow[0];
-                                // var amPercentUsed = (int) (fractionUsed * 100);
-                                g.FillRectangle(new SolidBrush(Color.FromArgb(128, 91, 182, 146)), xStart, yStart, (int)(cellWidth * fractionUsed), cellHeight / 2);
+                                g.FillRectangle(new SolidBrush(Color.FromArgb(128, 91, 182, 146)), x, y, (int)(width * fractionUsed), height);
+
+                                dayPoint.AddDetail(new CapacityDetail(Shift.Am, amRow[0], amRow[1]) {DrawArea = new Rectangle(x, y, width, height)});
                             }
 
-                            if (pmRow[0] > 0)   // pmTotal
+                            if (pmRow[0] > 0)   // PM Total
                             {
+                                var x = xStart;
+                                var y = yStart + cellHeight / 2;
+                                var width = cellWidth;
+                                var height = cellHeight / 2;
+
                                 var fractionUsed = (decimal)pmRow[1] / pmRow[0];
-                                // var amPercentUsed = (int) (fractionUsed * 100);
-                                g.FillRectangle(new SolidBrush(Color.FromArgb(128, 72, 37, 152)), xStart, yStart + cellHeight / 2, (int)(cellWidth * fractionUsed), cellHeight / 2);
+
+                                g.FillRectangle(new SolidBrush(Color.FromArgb(128, 72, 37, 152)), x, y, (int)(width * fractionUsed), height);
+
+                                dayPoint.AddDetail(new CapacityDetail(Shift.Am, amRow[0], amRow[1]) { DrawArea = new Rectangle(x, y, width, height)});
                             }
 
                             thisMonthDayOffset++;
@@ -374,25 +389,6 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             public int Width;
         }
         
-        private class CalendarDayPoint
-        {
-            private readonly Rectangle _rectangle;
-
-            public CalendarDayPoint(DateTime date, Rectangle rectangle)
-            {
-                Date = date;
-                _rectangle = rectangle;
-            }
-
-            public DateTime Date { get; }
-
-            public bool Contains(int x, int y)
-            {
-                return _rectangle.Contains(x, y);
-            }
-        }
-
-
         internal struct MonthInfo
         {
             internal MonthInfo(int daysInMonth, int start, int end, int rogueBefore, int rogueAfter, int numberOfWeeks, IEnumerable<Day> days)

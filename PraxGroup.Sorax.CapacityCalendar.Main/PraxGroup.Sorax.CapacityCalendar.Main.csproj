@@ -53,12 +53,14 @@
     <Compile Include="ButtonTextBox.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="CalendarDayPoint.cs" />
     <Compile Include="CapacityCalendar.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="CapacityDateTimePicker.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="CapacityDetail.cs" />
     <Compile Include="CustomButton.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -71,6 +73,7 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Shift.cs" />
     <Compile Include="TodayButton.cs">
       <SubType>UserControl</SubType>
     </Compile>

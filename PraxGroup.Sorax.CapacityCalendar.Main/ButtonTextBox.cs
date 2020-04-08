@@ -14,9 +14,12 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
 
         private Button _button;
 
+        private CheckBox _checkbox;
+
         public ButtonTextBox()
         {
-            InitButton();
+            SetupButton();
+            SetupCheckbox();
             SizeChanged += (o, e) => OnResize(e);
         }
 
@@ -26,7 +29,7 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             remove => _button.Click -= value;
         }
 
-        private void InitButton()
+        private void SetupButton()
         {
             _button = new Button();
             _button.Size = SetButtonSize();
@@ -35,6 +38,25 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             // _button.Image = GetImage();
             Controls.Add(_button);
             PreventTextDisappearUnderButton();
+        }
+
+        private void SetupCheckbox()
+        {
+            _checkbox = new CheckBox();
+            _checkbox.Size = SetCheckboxSize();
+            _checkbox.Location = SetCheckboxLocation();
+            Controls.Add(_checkbox);
+            PreventTextDisappearUnderCheckbox();
+        }
+
+        private static Point SetCheckboxLocation()
+        {
+            return new Point(1, 0);
+        }
+
+        private Size SetCheckboxSize()
+        {
+            return new Size(ClientSize.Height, ClientSize.Height);
         }
 
         private Point SetButtonLocation()
@@ -52,7 +74,11 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             base.OnResize(e);
             _button.Size = SetButtonSize();
             _button.Location = SetButtonLocation();
+            _checkbox.Size = SetCheckboxSize();
+            _checkbox.Location = SetCheckboxLocation();
             PreventTextDisappearUnderButton();
+            PreventTextDisappearUnderCheckbox();
+
         }
 
         private Image GetImage()
@@ -67,7 +93,18 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
 
         private void PreventTextDisappearUnderButton()
         {
-            NativeCalls.SendMessage(Handle, 0xd3, (IntPtr) 2, (IntPtr) (_button.Width << 16));
+            NativeCalls.SendMessage(Handle, 
+                NativeCalls.EM_SETMARGINS, 
+                (IntPtr) NativeCalls.EM_RIGHTMARGIN, 
+                (IntPtr) (_button.Width << 16));
+        }
+
+        private void PreventTextDisappearUnderCheckbox()
+        {
+            NativeCalls.SendMessage(Handle, 
+                NativeCalls.EM_SETMARGINS, 
+                (IntPtr) NativeCalls.EM_LEFTMARGIN, 
+                (IntPtr) (_checkbox.Width));
         }
     }
 }
