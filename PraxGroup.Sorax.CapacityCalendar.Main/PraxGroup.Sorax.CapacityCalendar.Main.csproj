@@ -61,7 +61,13 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="CapacityDetail.cs" />
+    <Compile Include="CapacityToolTip.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="CustomButton.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="CustomToolTip.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="ICapacityProvider.cs" />

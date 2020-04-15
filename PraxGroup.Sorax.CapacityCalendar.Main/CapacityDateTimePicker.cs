@@ -34,6 +34,7 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             // this._btnTxtBox.ReadOnly = true;
 
             _calendar.Visible = false;
+            _calendar.ShowToolTips = true;
 
             _calendar.MouseClick += OnCalendarMouseClick;
             _calendar.AddTodayHandler(TodayHandler);

@@ -28,6 +28,10 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
 
         public bool HighlightCurrentDay { get; set; }
 
+        public bool ShowToolTips { get; set; }
+
+        private CapacityToolTip _toolTip;
+
         private readonly List<CalendarDayPoint> _calendarDayPoints = new List<CalendarDayPoint>();
 
         private TodayButton _btnToday;
@@ -47,7 +51,8 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             _btnToday = new TodayButton {Name = "_btnToday"};
             _btnLeft = new NavigateLeftButton {Name = "_btnLeft"};
             _btnRight = new NavigateRightButton {Name = "_btnRight"};
-
+            _toolTip = new CapacityToolTip();
+            
             _btnToday.ButtonClicked += OnTodayButtonClicked;
             _btnLeft.ButtonClicked += OnLeftButtonClicked;
             _btnRight.ButtonClicked += OnRightButtonClicked;
@@ -64,9 +69,10 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             Controls.Add(_btnRight);
             Controls.Add(_btnLeft);
             Controls.Add(_btnToday);
+            Controls.Add(_toolTip);
 
-            // MouseMove += OnCalendarMouseMove;   // useful for tooltips (trailing effects etc)
-            
+            MouseMove += OnCalendarMouseMove;
+
             ResumeLayout(false);
         }
 
@@ -88,6 +94,39 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
         {
             _calendarDate = DateTime.Now;
             Refresh();
+        }
+
+        private void OnCalendarMouseMove(object sender, MouseEventArgs e)
+        {
+            if (!ShowToolTips)
+            {
+                return;
+            }
+
+            _toolTip.Hide();
+
+            var day = GetDayFromCoordinate(e.X, e.Y);
+            if (day == null)
+            {
+                return;
+            }
+
+            foreach (var detail in day.Details)
+            {
+                if (detail.Contains(e.X, e.Y))
+                {
+                    _toolTip.Shift = detail.ShiftValue;
+                    _toolTip.Total = detail.Total;
+                    _toolTip.Used = detail.Used;
+
+                    _toolTip.ToolTipText = @"moo";
+                    _toolTip.Location = new Point(e.X + 5, e.Y - _toolTip.Size.Height);
+                    _toolTip.Show();
+
+
+                    return;
+                }
+            }
         }
 
         public override void Refresh()
@@ -187,7 +226,7 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
 
                                 g.FillRectangle(new SolidBrush(Color.FromArgb(128, 72, 37, 152)), x, y, (int)(width * fractionUsed), height);
 
-                                dayPoint.AddDetail(new CapacityDetail(Shift.Am, amRow[0], amRow[1]) { DrawArea = new Rectangle(x, y, width, height)});
+                                dayPoint.AddDetail(new CapacityDetail(Shift.Pm, amRow[0], amRow[1]) { DrawArea = new Rectangle(x, y, width, height)});
                             }
 
                             thisMonthDayOffset++;
@@ -264,15 +303,22 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
 
         public DateTime? GetDateFromCoordinate(int x, int y)
         {
+            return GetDayFromCoordinate(x, y)?.Date;
+        }
+
+        public CalendarDayPoint GetDayFromCoordinate(int x, int y)
+        {
             foreach (var dayPoint in _calendarDayPoints)
             {
                 if (dayPoint.Contains(x, y))
                 {
-                    return dayPoint.Date;
+                    return dayPoint;
                 }
             }
             return null;
         }
+
+
 
         private static bool IsToday(DateTime date, Day day)
         {

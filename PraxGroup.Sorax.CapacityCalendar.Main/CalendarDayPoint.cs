@@ -27,5 +27,7 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
         {
             _details.Add(detail);
         }
+
+        public List<CapacityDetail> Details => _details;
     }
 }
