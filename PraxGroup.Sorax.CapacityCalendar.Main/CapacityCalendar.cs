@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Globalization;
 using System.Linq;
+using System.Timers;
 using System.Windows.Forms;
 
 namespace PraxGroup.Sorax.CapacityCalendar.Main
@@ -14,6 +15,10 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
         private readonly ICapacityProvider _capacityProvider;
         private readonly Font _dayOfWeekFont = DefaultFont;
         private readonly Font _dateHeaderFont = DefaultFont;
+
+        private System.Timers.Timer _toolTipTimer;
+        private int xMouse;
+        private int yMouse;
 
         private readonly string[] _dayNames = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
 
@@ -52,6 +57,11 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             _btnLeft = new NavigateLeftButton {Name = "_btnLeft"};
             _btnRight = new NavigateRightButton {Name = "_btnRight"};
             _toolTip = new CapacityToolTip();
+            _toolTipTimer = new System.Timers.Timer();
+            _toolTipTimer.Elapsed += OnToolTipTimerElapsed;
+            _toolTipTimer.AutoReset = false;
+            _toolTipTimer.Interval = 1000;
+
             
             _btnToday.ButtonClicked += OnTodayButtonClicked;
             _btnLeft.ButtonClicked += OnLeftButtonClicked;
@@ -74,6 +84,11 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             MouseMove += OnCalendarMouseMove;
 
             ResumeLayout(false);
+        }
+
+        private void OnToolTipTimerElapsed(object sender, ElapsedEventArgs e)
+        {
+            Invoke(new Action(() => _toolTip.Show()));
         }
 
         private void OnRightButtonClicked(object sender)
@@ -103,7 +118,11 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                 return;
             }
 
-            _toolTip.Hide();
+            if (MouseReallyMoved(e))
+            {
+                _toolTip.Hide();
+                _toolTipTimer.Stop();
+            }
 
             var day = GetDayFromCoordinate(e.X, e.Y);
             if (day == null)
@@ -120,13 +139,42 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                     _toolTip.Used = detail.Used;
 
                     _toolTip.ToolTipText = @"moo";
-                    _toolTip.Location = new Point(e.X + 5, e.Y - _toolTip.Size.Height);
-                    _toolTip.Show();
+                    _toolTip.Location = DetermineLocation(e);
 
+                    _toolTipTimer.Start();
 
                     return;
                 }
             }
+        }
+
+        private Point DetermineLocation(MouseEventArgs e)
+        {
+            var x = e.X;
+            var y = e.Y;
+            if (e.X + _toolTip.Size.Width > ClientSize.Width)
+            {
+                x = e.X - _toolTip.Size.Width;
+            }
+
+            if (e.Y + _toolTip.Size.Height > ClientSize.Height)
+            {
+                y = e.Y - _toolTip.Size.Height;
+            }
+
+            return new Point(x + 5, y - _toolTip.Size.Height);
+        }
+
+        private bool MouseReallyMoved(MouseEventArgs args)
+        {
+            if (args.X != xMouse || args.Y != yMouse)
+            {
+                xMouse = args.X;
+                yMouse = args.Y;
+                return true;
+            }
+
+            return false;
         }
 
         public override void Refresh()
