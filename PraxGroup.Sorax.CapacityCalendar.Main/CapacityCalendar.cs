@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Timers;
 using System.Windows.Forms;
 
@@ -17,8 +18,8 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
         private readonly Font _dateHeaderFont = DefaultFont;
 
         private System.Timers.Timer _toolTipTimer;
-        private int xMouse;
-        private int yMouse;
+        private int _xMouse;
+        private int _yMouse;
 
         private readonly string[] _dayNames = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
 
@@ -35,7 +36,7 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
 
         public bool ShowToolTips { get; set; }
 
-        private CapacityToolTip _toolTip;
+        private CustomToolTip _toolTip;
 
         private readonly List<CalendarDayPoint> _calendarDayPoints = new List<CalendarDayPoint>();
 
@@ -56,7 +57,7 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             _btnToday = new TodayButton {Name = "_btnToday"};
             _btnLeft = new NavigateLeftButton {Name = "_btnLeft"};
             _btnRight = new NavigateRightButton {Name = "_btnRight"};
-            _toolTip = new CapacityToolTip();
+            _toolTip = new CustomToolTip();
             _toolTipTimer = new System.Timers.Timer();
             _toolTipTimer.Elapsed += OnToolTipTimerElapsed;
             _toolTipTimer.AutoReset = false;
@@ -118,11 +119,13 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                 return;
             }
 
-            if (MouseReallyMoved(e))
+            if (!MouseReallyMoved(e))
             {
-                _toolTip.Hide();
-                _toolTipTimer.Stop();
+                return;
             }
+            
+            _toolTip.Hide();
+            _toolTipTimer.Stop();
 
             var day = GetDayFromCoordinate(e.X, e.Y);
             if (day == null)
@@ -134,11 +137,13 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             {
                 if (detail.Contains(e.X, e.Y))
                 {
-                    _toolTip.Shift = detail.ShiftValue;
-                    _toolTip.Total = detail.Total;
-                    _toolTip.Used = detail.Used;
+                    var sb = new StringBuilder();
+                    sb.Append("Shift: ").Append(detail.ShiftValue).Append("\n")
+                        .Append("Total: ").Append(detail.Total).Append("\n")
+                        .Append("Used: ").Append(detail.Used).Append("\n");
 
-                    _toolTip.ToolTipText = @"moo";
+                    _toolTip.ToolTipText = sb.ToString();
+
                     _toolTip.Location = DetermineLocation(e);
 
                     _toolTipTimer.Start();
@@ -167,10 +172,10 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
 
         private bool MouseReallyMoved(MouseEventArgs args)
         {
-            if (args.X != xMouse || args.Y != yMouse)
+            if (args.X != _xMouse || args.Y != _yMouse)
             {
-                xMouse = args.X;
-                yMouse = args.Y;
+                _xMouse = args.X;
+                _yMouse = args.Y;
                 return true;
             }
 
@@ -274,7 +279,7 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
 
                                 g.FillRectangle(new SolidBrush(Color.FromArgb(128, 72, 37, 152)), x, y, (int)(width * fractionUsed), height);
 
-                                dayPoint.AddDetail(new CapacityDetail(Shift.Pm, amRow[0], amRow[1]) { DrawArea = new Rectangle(x, y, width, height)});
+                                dayPoint.AddDetail(new CapacityDetail(Shift.Pm, pmRow[0], pmRow[1]) { DrawArea = new Rectangle(x, y, width, height)});
                             }
 
                             thisMonthDayOffset++;

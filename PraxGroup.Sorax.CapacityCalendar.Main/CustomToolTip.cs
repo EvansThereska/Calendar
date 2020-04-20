@@ -78,8 +78,9 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                 e.Graphics.DrawImage(bmp, 0, 0);
             }
         }
-
     }
+
+
 
     public class Margin
     {
