@@ -28,6 +28,11 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             _details.Add(detail);
         }
 
+        public void AddDetails(List<CapacityDetail> details)
+        {
+            _details.AddRange(details);
+        }
+
         public List<CapacityDetail> Details => _details;
     }
 }

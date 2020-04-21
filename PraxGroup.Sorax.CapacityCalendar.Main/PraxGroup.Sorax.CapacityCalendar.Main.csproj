@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AlternativeDayRenderer.cs" />
     <Compile Include="ButtonTextBox.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -67,7 +68,10 @@
     <Compile Include="CustomToolTip.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Day.cs" />
+    <Compile Include="DefaultDayRenderer.cs" />
     <Compile Include="ICapacityProvider.cs" />
+    <Compile Include="IDayRenderer.cs" />
     <Compile Include="NativeCalls.cs" />
     <Compile Include="NavigateLeftButton.cs">
       <SubType>UserControl</SubType>
