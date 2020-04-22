@@ -44,6 +44,12 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
         private NavigateLeftButton _btnLeft;
         private NavigateRightButton _btnRight;
 
+        // These are determined by the rendering process
+        private int _gridXLeft;
+        private int _gridXRight;
+        private int _gridYTop;
+        private int _gridYBottom;
+
         public CapacityCalendar(ICapacityProvider capacityProvider) : this(capacityProvider, new AlternativeDayRenderer(DefaultFont))
         {
         }
@@ -163,14 +169,14 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
         {
             var x = e.X;
             var y = e.Y;
-            if (e.X + _toolTip.Size.Width > ClientSize.Width)
+            if (e.X + _toolTip.Size.Width > _gridXRight)
             {
                 x = e.X - _toolTip.Size.Width;
             }
 
-            if (e.Y + _toolTip.Size.Height > ClientSize.Height)
+            if (e.Y - _toolTip.Size.Height < _gridYTop)
             {
-                y = e.Y - _toolTip.Size.Height;
+                y = e.Y + _toolTip.Size.Height;
             }
 
             return new Point(x + 5, y - _toolTip.Size.Height);
@@ -227,6 +233,8 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
 
                     int xStart = MarginSize;
                     int yStart = MarginSize + dateHeaderSize + daySpace + 5;
+                    _gridYTop = yStart;
+                    _gridXLeft = xStart;
                     
                     // Draw grid and dates
 
@@ -266,6 +274,8 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                         }
                     }
 
+                    _gridXLeft = MarginSize;
+                    _gridXRight = ClientSize.Width - MarginSize;
                     var endOfGrid = yStart + 2;
 
                     // Draw day names

@@ -1,10 +1,13 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace PraxGroup.Sorax.CapacityCalendar.Main
 {
     public class CustomToolTip : UserControl
     {
+        private static bool _firstTime = true;
+
         private Font _font = DefaultFont;
 
         private string _text;
@@ -61,7 +64,10 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
         {
             var textSize = CreateGraphics().MeasureString(ToolTipText, ToolTipFont);
 
-            Size = new Size((int) textSize.Width + ToolTipMargin.Left + ToolTipMargin.Right, (int) textSize.Height + ToolTipMargin.Top + ToolTipMargin.Bottom);
+            var width = Math.Max(65, (int) textSize.Width + ToolTipMargin.Left + ToolTipMargin.Right);
+            var height = Math.Max(48, (int) textSize.Height + ToolTipMargin.Top + ToolTipMargin.Bottom);
+
+            Size = new Size(width, height);
 
             using (var bmp = new Bitmap(ClientSize.Width, ClientSize.Height))
             {
@@ -76,6 +82,13 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                     }
                 }
                 e.Graphics.DrawImage(bmp, 0, 0);
+            }
+
+            if (_firstTime)
+            {
+                // Bit of a hack to fix some other time
+                Visible = false;
+                _firstTime = false;
             }
         }
     }
