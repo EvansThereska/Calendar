@@ -83,6 +83,7 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                 return;
             }
             
+            _btnTxtBox.SetActive();
             var xPoint = _btnTxtBox.Location.X;
             var yPoint = _btnTxtBox.Location.Y + _btnTxtBox.Height;
             _calendar.Location = new Point(xPoint, yPoint);

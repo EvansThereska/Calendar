@@ -45,6 +45,7 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             _checkbox = new CheckBox();
             _checkbox.Size = SetCheckboxSize();
             _checkbox.Location = SetCheckboxLocation();
+            _checkbox.CheckedChanged += OnCheckedChanged;
             Controls.Add(_checkbox);
             PreventTextDisappearUnderCheckbox();
         }
@@ -78,7 +79,24 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             _checkbox.Location = SetCheckboxLocation();
             PreventTextDisappearUnderButton();
             PreventTextDisappearUnderCheckbox();
+        }
 
+        private void OnCheckedChanged(object sender, EventArgs e)
+        {
+            if (_checkbox.Checked)
+            {
+                ForeColor = Color.Black;
+            }
+            else
+            {
+                ForeColor = Color.Gray;
+            }
+        }
+
+
+        public void SetActive()
+        {
+            _checkbox.Checked = true;
         }
 
         private Image GetImage()
