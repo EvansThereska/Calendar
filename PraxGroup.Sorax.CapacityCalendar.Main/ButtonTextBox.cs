@@ -16,6 +16,8 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
 
         private CheckBox _checkbox;
 
+        public bool Checked => _checkbox.Checked;
+
         public ButtonTextBox()
         {
             SetupButton();
