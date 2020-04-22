@@ -23,6 +23,9 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             SetupButton();
             SetupCheckbox();
             SizeChanged += (o, e) => OnResize(e);
+            ReadOnly = true;
+            BackColor = Color.White;
+            GotFocus += (s, e) => { NativeCalls.HideCaret(Handle);};
         }
 
         public event EventHandler ButtonClick
