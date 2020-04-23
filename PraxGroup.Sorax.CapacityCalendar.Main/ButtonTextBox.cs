@@ -80,7 +80,7 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
 
         private Point SetButtonLocation()
         {
-            return new Point(ClientSize.Width - _button.Width, -2);
+            return new Point(ClientSize.Width - _button.Width + 1, -2);
         }
 
         private Size SetButtonSize()

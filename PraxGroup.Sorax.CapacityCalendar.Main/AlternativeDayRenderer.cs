@@ -46,14 +46,17 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             var amRow = capacity[0];
             var pmRow = capacity[1];
 
+            var pen = new Pen(Color.Black, 1.0f);
+
             if (amRow[0] > 0) // AM Total
             {
                 var x = xStart + _margin * cellWidth;
                 var y = yStart;
                 var width = (1 - _margin) * cellWidth;
-                var height = cellHeight / 2 + 1;
+                var height = cellHeight / 2;
 
                 var fractionUsed = (decimal) amRow[1] / amRow[0];
+                g.DrawRectangle(pen, x, y, width, height);
                 g.FillRectangle(new SolidBrush(Color.FromArgb(128, 91, 182, 146)), x, y, (int) ((decimal) width * fractionUsed), height);
                 result.Add(new CapacityDetail(Shift.Am, amRow[0], amRow[1]) {DrawArea = new Rectangle((int) x, y, (int) width, height)});
             }
@@ -66,7 +69,8 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                 var height = cellHeight / 2 + 1;
 
                 var fractionUsed = (decimal) pmRow[1] / pmRow[0];
-
+                
+                g.DrawRectangle(pen, x, y, width, height);
                 g.FillRectangle(new SolidBrush(Color.FromArgb(128, 72, 37, 152)), x, y, (int) ((decimal) width * fractionUsed), height);
 
                 result.Add(new CapacityDetail(Shift.Pm, pmRow[0], pmRow[1]) { DrawArea = new Rectangle((int) x, y, (int) width, height)});
