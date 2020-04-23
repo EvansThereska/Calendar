@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Drawing;
-using System.Reflection;
 using System.Windows.Forms;
 
 namespace PraxGroup.Sorax.CapacityCalendar.Main
 {
     public class ButtonTextBox : TextBox
     {
-        private const string ImageName = "moo.png";
+        private const string ImageName = "calendar.png";
 
         private const int ButtonWidth = 25;
 
@@ -38,9 +36,12 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
         {
             _button = new Button();
             _button.Size = SetButtonSize();
+            _button.BackColor = Color.Transparent;
+            _button.FlatStyle = FlatStyle.Flat;
+            _button.FlatAppearance.BorderSize = 0;
             _button.Location = SetButtonLocation();
             _button.Cursor = DefaultCursor;
-            // _button.Image = GetImage();
+            _button.Image = GetImage();
             Controls.Add(_button);
             PreventTextDisappearUnderButton();
         }
@@ -106,12 +107,11 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
 
         private Image GetImage()
         {
-            
-            var name = nameof(Main);
-            var assembly = Assembly.GetExecutingAssembly();
-            var myStream = assembly.GetManifestResourceStream($"{name}.{ImageName}");
-            Debug.Assert(myStream != null, nameof(myStream) + " != null");
-            return new Bitmap(myStream);
+            string name = ImageName;
+            string namespaceName = "PraxGroup.Sorax.CapacityCalendar.Main";
+            string resource = namespaceName + "." + name;
+            Type type = typeof(PraxGroup.Sorax.CapacityCalendar.Main.CalendarDayPoint);
+            return new Bitmap(type.Assembly.GetManifestResourceStream(resource));
         }
 
         private void PreventTextDisappearUnderButton()
