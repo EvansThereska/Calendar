@@ -41,9 +41,21 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             _button.FlatAppearance.BorderSize = 0;
             _button.Location = SetButtonLocation();
             _button.Cursor = DefaultCursor;
+            _button.MouseEnter += OnButtonTextBoxMouseEnter;
+            _button.MouseLeave += OnButtonTextBoxMouseLeave;
             _button.Image = GetImage();
             Controls.Add(_button);
             PreventTextDisappearUnderButton();
+        }
+
+        private void OnButtonTextBoxMouseEnter(object sender, EventArgs e)
+        {
+            _button.BackColor = Color.FromArgb(128, 204, 229, 255);
+        }
+
+        private void OnButtonTextBoxMouseLeave(object sender, EventArgs e)
+        {
+            _button.BackColor = Color.White;
         }
 
         private void SetupCheckbox()
@@ -68,7 +80,7 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
 
         private Point SetButtonLocation()
         {
-            return new Point(ClientSize.Width - _button.Width + 1, -1);
+            return new Point(ClientSize.Width - _button.Width, -2);
         }
 
         private Size SetButtonSize()
