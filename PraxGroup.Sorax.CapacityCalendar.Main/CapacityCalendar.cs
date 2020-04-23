@@ -2,47 +2,84 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Globalization;
 using System.Linq;
+using System.Text;
+using System.Timers;
 using System.Windows.Forms;
 
 namespace PraxGroup.Sorax.CapacityCalendar.Main
 {
     public class CapacityCalendar : UserControl
     {
+        private readonly ICapacityProvider _capacityProvider;
         private readonly Font _dayOfWeekFont = DefaultFont;
         private readonly Font _dateHeaderFont = DefaultFont;
+
+        private System.Timers.Timer _toolTipTimer;
+        private int _xMouse;
+        private int _yMouse;
 
         private readonly string[] _dayNames = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
 
         private DateTime _calendarDate = DateTime.Now;
+
+        private int[][][] _capacity;
 
         private const int MarginSize = 5;
         private const int NumberOfDaysAWeek = 7;
 
         public bool HighlightCurrentDay { get; set; }
 
+        public IDayRenderer DayRenderer { get; set; }
+
+        public bool ShowToolTips { get; set; }
+
+        private CustomToolTip _toolTip;
+
+        private readonly List<CalendarDayPoint> _calendarDayPoints = new List<CalendarDayPoint>();
+
         private TodayButton _btnToday;
         private NavigateLeftButton _btnLeft;
         private NavigateRightButton _btnRight;
 
-        public CapacityCalendar()
+        // These are determined by the rendering process
+        private int _gridXLeft;
+        private int _gridXRight;
+        private int _gridYTop;
+        private int _gridYBottom;
+
+        public CapacityCalendar(ICapacityProvider capacityProvider) : this(capacityProvider, new AlternativeDayRenderer(DefaultFont))
         {
-            InitialiseComponents();
         }
 
-        private void InitialiseComponents()
+        public CapacityCalendar(ICapacityProvider capacityProvider, IDayRenderer dayRenderer)
+        {
+            _capacityProvider = capacityProvider;
+            DayRenderer = dayRenderer;
+            InitializeComponents();
+        }
+
+
+        private void InitializeComponents()
         {
             SuspendLayout();
 
             _btnToday = new TodayButton {Name = "_btnToday"};
             _btnLeft = new NavigateLeftButton {Name = "_btnLeft"};
             _btnRight = new NavigateRightButton {Name = "_btnRight"};
+            _toolTip = new CustomToolTip();
+            _toolTipTimer = new System.Timers.Timer();
+            _toolTipTimer.Elapsed += OnToolTipTimerElapsed;
+            _toolTipTimer.AutoReset = false;
+            _toolTipTimer.Interval = 1000;
 
-            _btnToday.ButtonClicked += OnButtonTodayClicked;
-            _btnLeft.ButtonClicked += OnButtonLeftClicked;
-            _btnRight.ButtonClicked += OnButtonRightClicked;
+            
+            _btnToday.ButtonClicked += OnTodayButtonClicked;
+            _btnLeft.ButtonClicked += OnLeftButtonClicked;
+            _btnRight.ButtonClicked += OnRightButtonClicked;
+
+            Load += OnCustomCalendarLoad;
 
             Size = new Size(512, 440);
             DoubleBuffered = true;
@@ -54,31 +91,123 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             Controls.Add(_btnRight);
             Controls.Add(_btnLeft);
             Controls.Add(_btnToday);
-            
+            Controls.Add(_toolTip);
+
+            MouseMove += OnCalendarMouseMove;
+
             ResumeLayout(false);
         }
 
-        private void OnButtonRightClicked(object sender)
+        private void OnToolTipTimerElapsed(object sender, ElapsedEventArgs e)
+        {
+            Invoke(new Action(() => _toolTip.Show()));
+        }
+
+        private void OnRightButtonClicked(object sender)
         {
             _calendarDate = _calendarDate.AddMonths(1);
+            _capacityProvider.GetCapacity(_calendarDate, _capacity);
             Refresh();
         }
 
-        private void OnButtonLeftClicked(object sender)
+        private void OnLeftButtonClicked(object sender)
         {
             _calendarDate = _calendarDate.AddMonths(-1);
+            _capacityProvider.GetCapacity(_calendarDate, _capacity);
             Refresh();
         }
 
-        private void OnButtonTodayClicked(object sender)
+        private void OnTodayButtonClicked(object sender)
         {
             _calendarDate = DateTime.Now;
             Refresh();
         }
 
+        private void OnCalendarMouseMove(object sender, MouseEventArgs e)
+        {
+            if (!ShowToolTips)
+            {
+                return;
+            }
+
+            if (!MouseReallyMoved(e))
+            {
+                return;
+            }
+            
+            _toolTip.Hide();
+            _toolTipTimer.Stop();
+
+            var day = GetDayFromCoordinate(e.X, e.Y);
+            if (day == null)
+            {
+                return;
+            }
+
+            foreach (var detail in day.Details)
+            {
+                if (detail.Contains(e.X, e.Y))
+                {
+                    var sb = new StringBuilder();
+                    sb.Append("Shift: ").Append(detail.ShiftValue).Append("\n")
+                        .Append("Total: ").Append(detail.Total).Append("\n")
+                        .Append("Used: ").Append(detail.Used).Append("\n");
+
+                    _toolTip.ToolTipText = sb.ToString();
+
+                    _toolTip.Location = DetermineLocation(e);
+
+                    _toolTipTimer.Start();
+
+                    return;
+                }
+            }
+        }
+
+        private Point DetermineLocation(MouseEventArgs e)
+        {
+            var x = e.X;
+            var y = e.Y;
+            if (e.X + _toolTip.Size.Width > _gridXRight)
+            {
+                x = e.X - _toolTip.Size.Width;
+            }
+
+            if (e.Y - _toolTip.Size.Height < _gridYTop)
+            {
+                y = e.Y + _toolTip.Size.Height;
+            }
+
+            return new Point(x + 5, y - _toolTip.Size.Height);
+        }
+
+        private bool MouseReallyMoved(MouseEventArgs args)
+        {
+            if (args.X != _xMouse || args.Y != _yMouse)
+            {
+                _xMouse = args.X;
+                _yMouse = args.Y;
+                return true;
+            }
+
+            return false;
+        }
+
+        public override void Refresh()
+        {
+            _calendarDayPoints.Clear();
+            base.Refresh();
+        }
+
         private void CalendarPaint(object sender, PaintEventArgs e)
         {
+            _calendarDayPoints.Clear();
             RenderCalendar(e);
+        }
+
+        public void AddTodayHandler(CustomButton.ButtonClickedArgs args)
+        {
+            _btnToday.ButtonClicked += args;
         }
 
         private void RenderCalendar(PaintEventArgs e)
@@ -93,38 +222,46 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                     string monthAsString = _calendarDate.ToString("MMMM");
                     string yearAsString = _calendarDate.Year.ToString(CultureInfo.InvariantCulture);
                     var heightOfMonthAndYear = (int) g.MeasureString(monthAsString + " " + yearAsString, _dateHeaderFont).Height;
-                    int dateHeaderSize = heightOfMonthAndYear + 20;
+                    int dateHeaderSize = heightOfMonthAndYear + 10;
                     int daySpace = MaxDaySize(g).Height;
-                    int effectiveWidth = ClientSize.Width - MarginSize;
+                    int effectiveWidth = ClientSize.Width - 2 * MarginSize;
                     int effectiveHeight = ClientSize.Height - (daySpace + dateHeaderSize + MarginSize);
-                    var alignInfo = CalculateNumberOfWeeks(_calendarDate.Year, _calendarDate.Month);
+                    var monthInfo = CalculateNumberOfWeeks(_calendarDate.Year, _calendarDate.Month);
                     int cellWidth = effectiveWidth / NumberOfDaysAWeek;
-                    int cellHeight = (effectiveHeight - 30) / alignInfo.NumberOfWeeks;
+                    int cellHeight = (effectiveHeight - 30) / monthInfo.NumberOfWeeks;
 
                     int xStart = MarginSize;
-                    int yStart = MarginSize + dateHeaderSize + daySpace + 10;
+                    int yStart = MarginSize + dateHeaderSize + daySpace + 5;
+                    _gridYTop = yStart;
+                    _gridXLeft = xStart;
                     
-
                     // Draw grid and dates
-                    var gray = new SolidBrush(Color.FromArgb(170, 170, 170));
-                    var black = Brushes.Black;
 
                     var dayCount = 0;
-                    foreach (var day in alignInfo.Days)
+                    var thisMonthDayOffset = 0;
+                    foreach (var day in monthInfo.Days)
                     {
-                        var brush = day.IsRogue ? gray : black;
-                        g.DrawString(day.ToString(), _dayOfWeekFont, brush, xStart + (cellWidth - g.MeasureString(day.ToString(), _dayOfWeekFont).Width) / 2, yStart + (cellHeight - g.MeasureString(day.ToString(), _dayOfWeekFont).Height) / 2 - 1);
+                        DayRenderer.RenderDay(g, day, xStart, cellWidth, yStart, cellHeight);
+
+                        var dayPoint = new CalendarDayPoint(day.Date, new Rectangle(xStart, yStart, cellWidth, cellHeight));
+                        
+                        _calendarDayPoints.Add(dayPoint);
 
                         if (HighlightCurrentDay & IsToday(_calendarDate, day))
                         {
-                            g.CompositingQuality = CompositingQuality.GammaCorrected;
-                            var dashed = new Pen(Color.Black, 0.5f) {DashStyle = DashStyle.Dot};
-                            var bold = new Pen(Color.Blue, 1.5f);
-                            g.DrawRectangle(bold, xStart, yStart, cellWidth - 1, cellHeight - 1);
-                            g.DrawRectangle(dashed, xStart + 1f, yStart + 1f, cellWidth - 3f, cellHeight - 3f);
-                            g.FillRectangle(new SolidBrush(Color.FromArgb(128, 204, 229, 255)), xStart, yStart, cellWidth, cellHeight);
+                            DayRenderer.HighlightDay(g, xStart, cellWidth, yStart, cellHeight);
                         }
 
+                        // We do the capacity drawing here
+                        if (!day.IsRogue && thisMonthDayOffset < monthInfo.DaysInMonth)
+                        {
+                            var dayCapacity = _capacity[thisMonthDayOffset];
+
+                            dayPoint.AddDetails(DayRenderer.RenderCapacity(g, dayCapacity, xStart, yStart, cellWidth, cellHeight));
+
+                            thisMonthDayOffset++;
+                        }
+                        
                         if (++dayCount % NumberOfDaysAWeek == 0)
                         {
                             xStart = MarginSize;
@@ -136,7 +273,9 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                         }
                     }
 
-                    var endOfGrid = yStart;
+                    _gridXLeft = MarginSize;
+                    _gridXRight = ClientSize.Width - MarginSize;
+                    var endOfGrid = yStart + 2;
 
                     // Draw day names
                     int xMondayBegin = 0, xSundayEnd = 0;
@@ -158,10 +297,10 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                         xStart += cellWidth;
                     }
 
-                    // Draw line
-                    var pen = Pens.LightGray;
-                    yStart = MarginSize + dateHeaderSize + daySpace + 5;
-                    g.DrawLine(pen, xMondayBegin, yStart, xSundayEnd, yStart);
+                    // // Draw line
+                    // var pen = Pens.LightGray;
+                    // yStart = MarginSize + dateHeaderSize + daySpace + 5;
+                    // g.DrawLine(pen, xMondayBegin, yStart, xSundayEnd, yStart);
 
                     // Position header and left/right buttons
                     _btnLeft.Location = new Point(xMondayBegin -(int) (_btnLeft.Width * 0.25), MarginSize);
@@ -178,6 +317,36 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                 }
                 e.Graphics.DrawImage(bitmap, 0, 0, ClientSize.Width, ClientSize.Height);
             }
+        }
+
+
+        // private void OnCalendarMouseMove(object sender, MouseEventArgs e)
+        // {
+        //     throw new NotImplementedException();
+        // }
+
+        private void OnCustomCalendarLoad(object sender, EventArgs e)
+        {
+            // Here we load our capacity data.. do this async as some point
+            _capacity = _capacityProvider.GetCapacity(_calendarDate);
+
+        }
+
+        public DateTime? GetDateFromCoordinate(int x, int y)
+        {
+            return GetDayFromCoordinate(x, y)?.Date;
+        }
+
+        public CalendarDayPoint GetDayFromCoordinate(int x, int y)
+        {
+            foreach (var dayPoint in _calendarDayPoints)
+            {
+                if (dayPoint.Contains(x, y))
+                {
+                    return dayPoint;
+                }
+            }
+            return null;
         }
 
         private static bool IsToday(DateTime date, Day day)
@@ -218,24 +387,25 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             var days = new List<Day>();
             if (leftPadding > 0)
             {
-                var prevMonth = _calendarDate.AddMonths(-1);
-                var prevNoOfDays = DateTime.DaysInMonth(prevMonth.Year, prevMonth.Month);
+                var prevMonthDate = _calendarDate.AddMonths(-1);
+                var prevNoOfDays = DateTime.DaysInMonth(prevMonthDate.Year, prevMonthDate.Month);
                 while (leftPadding-- > 0)
                 {
-                    days.Add(new Day(prevNoOfDays - leftPadding, true));
+                    days.Add(new Day(prevNoOfDays - leftPadding, true, new DateTime(prevMonthDate.Year, prevMonthDate.Month, prevNoOfDays - leftPadding)));
                 }
             }
 
             for (var i = 1; i <= daysInMonth; i++)
             {
-                days.Add(new Day(i, false));
+                days.Add(new Day(i, false, new DateTime(_calendarDate.Year, _calendarDate.Month, i)));
             }
 
             if (rightPadding > 0)
             {
+                var nextMonthDate = _calendarDate.AddMonths(1);
                 while (rightPadding-- > 0)
                 {
-                    days.Add(new Day(rightPadding + 1, true));
+                    days.Add(new Day(rightPadding + 1, true, new DateTime(nextMonthDate.Year, nextMonthDate.Month, rightPadding + 1)));
                 }
             }
 
@@ -314,26 +484,6 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             public int RogueBefore { get; set; }
             public int RogueAfter { get; set; }
             public int NumberOfWeeks { get; set; }
-        }
-
-        internal class Day
-        {
-            public Day(int value, bool isRogue)
-            {
-                Value = value;
-                IsRogue = isRogue;
-            }
-
-            public int Value { get; private set; }
-            
-            public DayOfWeek DayOfWeek { get; set; }
-            
-            public bool IsRogue { get; set; }
-
-            public override string ToString()
-            {
-                return Value.ToString(CultureInfo.InvariantCulture);
-            }
         }
     }
 }

@@ -63,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CapacityCalendarTest.cs" />
+    <Compile Include="EmptyCapacityProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PraxGroup.Sorax.CapacityCalendar.Main\PraxGroup.Sorax.CapacityCalendar.Main.csproj">

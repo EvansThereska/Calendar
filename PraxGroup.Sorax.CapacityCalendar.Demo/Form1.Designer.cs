@@ -36,26 +36,27 @@ namespace PraxGroup.Sorax.CapacityCalendar.Demo
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Text = "Form1";
 
-            this._btnTxtBox = new PraxGroup.Sorax.CapacityCalendar.Main.ButtonTextBox();
-            this._btnTxtBox.Location = new System.Drawing.Point(505, 27);
-            this._btnTxtBox.Name = "_btnTxtBox";
-            this._btnTxtBox.ReadOnly = true;
-            this._btnTxtBox.Size = new System.Drawing.Size(210, 20);
-            this._btnTxtBox.TabIndex = 0;
+            _capacityDtp = new PraxGroup.Sorax.CapacityCalendar.Main.CapacityDateTimePicker(new DummyCapacityProvider());
+            _capacityDtp.Size = new System.Drawing.Size(800, 450);
+            _capacityDtp.Location = new System.Drawing.Point(505, 27);
 
-            this._calendar = new PraxGroup.Sorax.CapacityCalendar.Main.CapacityCalendar();
-            this._calendar.Location = new System.Drawing.Point(12, 12);
-            this._calendar.Size = new System.Drawing.Size(300, 200);
-            this._calendar.Name = "_calendar";
-            this._calendar.BackColor = Color.White;
-            this._calendar.HighlightCurrentDay = true;
+            // this._calendar = new PraxGroup.Sorax.CapacityCalendar.Main.CapacityCalendar();
+            // this._calendar.Location = new System.Drawing.Point(12, 12);
+            // this._calendar.Size = new System.Drawing.Size(300, 200);
+            // this._calendar.Name = "_calendar";
+            // this._calendar.BackColor = Color.White;
+            // this._calendar.HighlightCurrentDay = true;
 
-            this.Controls.Add(this._btnTxtBox);
-            this.Controls.Add(this._calendar);
+            // this.Controls.Add(this._btnTxtBox);
+            // this.Controls.Add(this._calendar);
+            this.Controls.Add(_capacityDtp);
         }
 
         private PraxGroup.Sorax.CapacityCalendar.Main.ButtonTextBox _btnTxtBox;
-        private PraxGroup.Sorax.CapacityCalendar.Main.CapacityCalendar _calendar;
+        // private PraxGroup.Sorax.CapacityCalendar.Main.CapacityCalendar _calendar;
+
+
+        private PraxGroup.Sorax.CapacityCalendar.Main.CapacityDateTimePicker _capacityDtp;
 
         #endregion
     }

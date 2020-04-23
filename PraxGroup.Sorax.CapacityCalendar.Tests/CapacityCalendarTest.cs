@@ -5,7 +5,7 @@ namespace PraxGroup.Sorax.CapacityCalendar.Tests
 {
     public class CapacityCalendarTest
     {
-        private readonly Main.CapacityCalendar _calendar = new Main.CapacityCalendar();
+        private readonly Main.CapacityCalendar _calendar = new Main.CapacityCalendar(new EmptyCapacityProvider());
 
         [Fact]
         public void CalculateNumberOfWeeksApril2020()
