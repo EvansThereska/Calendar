@@ -68,7 +68,7 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
         {
             if (_isVisible)
             {
-                // _calendar.Visible = false;
+                _windowHelper.ClosePopup();
                 _isVisible = false;
             }
             else

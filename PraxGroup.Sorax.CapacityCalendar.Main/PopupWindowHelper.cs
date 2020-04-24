@@ -40,7 +40,7 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                 // check for WM_ACTIVATE and WM_NCACTIVATE
                 if (m.Msg == NativeCalls.WM_NCACTIVATE)
                 {
-                    // Check if the title bar will be made inactive:
+                    // Check if the title bar will made inactive:
                     if (((int) m.WParam) == 0)
                     {
                         // If so reactivate it.

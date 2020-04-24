@@ -45,15 +45,9 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             _button.Cursor = DefaultCursor;
             _button.MouseEnter += OnButtonTextBoxMouseEnter;
             _button.MouseLeave += OnButtonTextBoxMouseLeave;
-            _button.LostFocus += OnFocus;
             _button.Image = GetImage();
             Controls.Add(_button);
             PreventTextDisappearUnderButton();
-        }
-
-        private void OnFocus(object sender, EventArgs e)
-        {
-            Refresh();
         }
 
         private void OnButtonTextBoxMouseEnter(object sender, EventArgs e)
