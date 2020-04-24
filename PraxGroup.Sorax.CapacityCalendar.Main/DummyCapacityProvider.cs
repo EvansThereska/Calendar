@@ -1,7 +1,6 @@
 ﻿using System;
-using PraxGroup.Sorax.CapacityCalendar.Main;
 
-namespace PraxGroup.Sorax.CapacityCalendar.Demo
+namespace PraxGroup.Sorax.CapacityCalendar.Main
 {
     public class DummyCapacityProvider : ICapacityProvider
     {
