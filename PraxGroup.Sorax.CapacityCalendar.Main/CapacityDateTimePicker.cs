@@ -12,7 +12,7 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
         private readonly Form _parentForm;
         private ButtonTextBox _btnTxtBox;
 
-        private readonly PopupWindowHelper _windowHelper;
+        private PopupWindowHelper _windowHelper;
 
         private bool _isVisible;
 
@@ -75,9 +75,13 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             {
                 _btnTxtBox.SetActive();
                 var calendar = new frmCapacityCalendar();
-                var xPoint = _btnTxtBox.Location.X;
-                var yPoint = _btnTxtBox.Location.Y + _btnTxtBox.Height;
-                _windowHelper.ShowPopup(_parentForm, calendar, new Point(xPoint, yPoint));
+                // var xPoint = _btnTxtBox.Location.X;
+                // var yPoint = _btnTxtBox.Location.Y + _btnTxtBox.Height;
+
+                var xPoint = _btnTxtBox.Left;
+                var yPoint = _btnTxtBox.Bottom;
+
+                _windowHelper.ShowPopup(_parentForm, calendar, this.PointToScreen(new Point(xPoint, yPoint)));
                 // _calendar.Location = new Point(xPoint, yPoint);
                 // _calendar.BackColor = Color.White;
                 // _calendar.Size = new Size(_btnTxtBox.Width + 40, 200);

@@ -73,6 +73,7 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             _toolTipTimer.Elapsed += OnToolTipTimerElapsed;
             _toolTipTimer.AutoReset = false;
             _toolTipTimer.Interval = 1000;
+            _toolTip.Visible = false;
 
             
             _btnToday.ButtonClicked += OnTodayButtonClicked;
