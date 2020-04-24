@@ -20,11 +20,22 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
 
         private bool _isShowing;
 
+        public event PopupClosedEventHandler PopupClosed;
+
+        public event PopupCancelEventHandler PopupCancel;
+
         
         public PopupWindowHelper()
         {
             _filter = new PopupWindowHelperMessageFilter(this);
+            _filter.PopupCancel += popup_Cancel;
         }
+
+        private void popup_Cancel(object sender, PopupCancelEventArgs e)
+        {
+            PopupCancel?.Invoke(this, e);
+        }
+
 
         /// <summary>
         /// Subclasses the owning form's existing Window Procedure to enables the 
@@ -98,6 +109,7 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
         {
             if (_isShowing)
             {
+                OnPopupClosed(new PopupClosedEventArgs(_popup));
                 _owner.RemoveOwnedForm(_popup);
                 _isShowing = false;
                 _popup.Closed -= _closedHandler;
@@ -108,6 +120,11 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                 _popup = null;
                 _owner = null;
             }
+        }
+
+        private void OnPopupClosed(PopupClosedEventArgs e)
+        {
+            PopupClosed?.Invoke(this, e);
         }
 
         private void popup_Closed(object sender, EventArgs e)

@@ -21,6 +21,8 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             _parentForm = parentForm;
             InitializeComponents();
             _windowHelper = new PopupWindowHelper();
+            _windowHelper.PopupClosed += OnPopupClosed;
+            _windowHelper.PopupCancel += OnPopupCancelled;
             _btnTxtBox.ButtonClick += OnButtonClick;
         }
 
@@ -63,6 +65,16 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
         //
         //     }
         // }
+
+        private void OnPopupCancelled(object sender, PopupCancelEventArgs e)
+        {
+            _isVisible = false;
+        }
+
+        private void OnPopupClosed(object sender, PopupClosedEventArgs e)
+        {
+            _isVisible = false;
+        }
 
         private void OnButtonClick(object sender, EventArgs e)
         {
