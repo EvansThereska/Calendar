@@ -12,7 +12,7 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
         private readonly Form _parentForm;
         private ButtonTextBox _btnTxtBox;
 
-        private PopupWindowHelper _windowHelper;
+        private readonly PopupWindowHelper _windowHelper;
 
         private bool _isVisible;
 
@@ -65,6 +65,11 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
         //
         //     }
         // }
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            _windowHelper.AssignHandle(_parentForm.Handle);
+        }
 
         private void OnPopupCancelled(object sender, PopupCancelEventArgs e)
         {
