@@ -77,7 +77,11 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
         {
             _isVisible = false;
             var popup = (frmCapacityCalendar) e.Popup;
-            _btnTxtBox.Text = popup.SelectedDate.ToString("dd/MM/yyyy");
+            var selectedDate = popup.SelectedDate;
+            if (selectedDate.HasValue)
+            {
+                _btnTxtBox.Text = selectedDate.Value.ToString("dd/MM/yyyy");
+            }
         }
 
         private void OnButtonClick(object sender, EventArgs e)

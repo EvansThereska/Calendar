@@ -8,7 +8,7 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
     {
         private System.ComponentModel.IContainer components = null;
 
-        public DateTime SelectedDate { get; set; }
+        public DateTime? SelectedDate { get; set; }
 
         public frmCapacityCalendar()
         {
@@ -24,7 +24,7 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             // 
             // _calendar
             // 
-            this._calendar.HighlightCurrentDay = false;
+            this._calendar.HighlightCurrentDay = true;
             this._calendar.Location = new System.Drawing.Point(0, 0);
             this._calendar.Name = "_calendar";
             this._calendar.ShowToolTips = true;
