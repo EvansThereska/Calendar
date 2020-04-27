@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Drawing;
-using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace PraxGroup.Sorax.CapacityCalendar.Main
 {
     public class CapacityDateTimePicker : UserControl
     {
-        private static readonly Regex TodayRegex = new Regex("Today: ([0-9]{1,2}?)/([0-9]{1,2})/([0-9]{4})");
-
         private readonly Form _parentForm;
         private ButtonTextBox _btnTxtBox;
 

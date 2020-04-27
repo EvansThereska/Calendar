@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing;
 using System.Windows.Forms;
 
 namespace PraxGroup.Sorax.CapacityCalendar.Main
@@ -32,6 +31,8 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             this._calendar.Size = new System.Drawing.Size(250, 200);
             this._calendar.TabIndex = 0;
             this._calendar.MouseClick += OnCalendarMouseClick;
+            this._calendar.AddTodayHandler(TodayHandler);
+
             // 
             // frmCapacityCalendar
             // 
@@ -60,6 +61,12 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
                     this.Close();
                 }
             }
+        }
+
+        private void TodayHandler(object sender)
+        {
+            SelectedDate = DateTime.Now;
+            this.Close();
         }
 
         protected override void Dispose(bool disposing)
