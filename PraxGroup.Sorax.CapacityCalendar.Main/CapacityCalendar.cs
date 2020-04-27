@@ -101,7 +101,17 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
 
         private void OnToolTipTimerElapsed(object sender, ElapsedEventArgs e)
         {
-            Invoke(new Action(() => _toolTip.Show()));
+            if (this.IsDisposed)
+            {
+                return;
+            }
+            Invoke(new Action(() =>
+            {
+                if (!this.IsDisposed)
+                {
+                    _toolTip.Show();
+                }
+            }));
         }
 
         private void OnRightButtonClicked(object sender)

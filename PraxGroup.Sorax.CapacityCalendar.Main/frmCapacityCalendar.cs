@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace PraxGroup.Sorax.CapacityCalendar.Main
@@ -7,6 +8,8 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
     public class frmCapacityCalendar : Form
     {
         private System.ComponentModel.IContainer components = null;
+
+        public DateTime SelectedDate { get; set; }
 
         public frmCapacityCalendar()
         {
@@ -28,6 +31,7 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             this._calendar.ShowToolTips = true;
             this._calendar.Size = new System.Drawing.Size(250, 200);
             this._calendar.TabIndex = 0;
+            this._calendar.MouseClick += OnCalendarMouseClick;
             // 
             // frmCapacityCalendar
             // 
@@ -43,6 +47,19 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
             this.TopMost = true;
             this.ResumeLayout(false);
 
+        }
+
+        private void OnCalendarMouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                var date = _calendar.GetDateFromCoordinate(e.X, e.Y);
+                if (date.HasValue)
+                {
+                    SelectedDate = date.Value;
+                    this.Close();
+                }
+            }
         }
 
         protected override void Dispose(bool disposing)

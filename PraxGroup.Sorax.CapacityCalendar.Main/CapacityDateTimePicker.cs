@@ -79,6 +79,8 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
         private void OnPopupClosed(object sender, PopupClosedEventArgs e)
         {
             _isVisible = false;
+            var popup = (frmCapacityCalendar) e.Popup;
+            _btnTxtBox.Text = popup.SelectedDate.ToString("dd/MM/yyyy");
         }
 
         private void OnButtonClick(object sender, EventArgs e)
