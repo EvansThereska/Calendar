@@ -70,7 +70,7 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
 
         private void OnPopupCancelled(object sender, PopupCancelEventArgs e)
         {
-            _isVisible = false;
+            // _isVisible = false;
         }
 
         private void OnPopupClosed(object sender, PopupClosedEventArgs e)

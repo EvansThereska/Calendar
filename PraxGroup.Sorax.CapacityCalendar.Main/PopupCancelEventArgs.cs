@@ -16,7 +16,7 @@ namespace PraxGroup.Sorax.CapacityCalendar.Main
         {
             Popup = popup;
             CursorLocation = location;
-            Cancel = false;
+            Cancel = true;
         }
 
     }
